@@ -1,17 +1,151 @@
 import Sequelize from 'sequelize';
-//import _ from 'lodash';
-//import Faker from 'faker';
 
 const Conn = new Sequelize(
-    'CONSULTORIO',
-    'USERNAME',
-    'PASSWORD', {
+    'myDb',
+    'myUser',
+    'myPass', {
         dialect: 'mysql',
-        host: 'localhost'
+        host: 'myHost',
+        define: {
+            charset: 'utf8',
+            collate: 'utf8_general_ci'
+        }
     }
 );
 
 // Tables / Objects
+
+const Doctor = Conn.define('doctor', {
+    login: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'login',
+        primaryKey: true,
+        allowNull: false
+    },
+    password: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'senha',
+        allowNull: false
+    },
+    identityDocument: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'cpf',
+    },
+    register: {
+        type: Sequelize.DataTypes.INTEGER,
+        field: 'login',
+    },
+    address: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'end',
+    },
+    gender: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'sexo',
+    },
+    name: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'nome',
+    },
+    phone: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'teldono',
+    },
+    city: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'cidade',
+    },
+    state: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'estado',
+    },
+    specialty: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'especialidade',
+    },
+}, {
+    tableName: 'MEDICO',
+    timestamps: false
+});
+
+const DocType = Conn.define('docType', {
+    login: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'login',
+        allowNull: false
+    },
+    name: {
+        type: Sequelize.DataTypes.STRING,
+        primaryKey: true,
+        allowNull: false,
+        field: 'nome',
+    },
+    content: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'conteudo',
+    },
+},{
+    tableName: 'DOC_TYPE',
+    timestamps: false
+});
+
+const InsuranceProvider = Conn.define('insuranceProvider', {
+    name: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'convenio',
+        primaryKey: true,
+        allowNull: false
+    },
+    amountCharged: {
+        type: Sequelize.DataTypes.FLOAT,
+        field: 'cobrado',
+        primaryKey: true,
+        allowNull: false
+    },
+}, {
+    tableName: 'CONVENIO',
+    timestamps: false
+});
+
+const Payment = Conn.define('payment', {
+    id: {
+        type: Sequelize.DataTypes.INTEGER,
+        field: 'pac_id',
+        primaryKey: true,
+        allowNull: false
+    },
+    login: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'login',
+        primaryKey: true,
+        allowNull: false
+    },
+    date: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'data',
+        primaryKey: true,
+        allowNull: false
+    },
+    insuranceProviderName: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'convenio',
+        allowNull: false
+    },
+    amountCharged: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'cobrado',
+        allowNull: false
+    },
+    receipt: {
+        type: Sequelize.DataTypes.STRING,
+        field: 'recibo',
+        allowNull: false
+    },
+}, {
+    tableName: 'PAGAMENTOS',
+    timestamps: false
+});
+
 const Patient = Conn.define('patient', {
     id: {
         type: Sequelize.DataTypes.INTEGER,
@@ -37,7 +171,7 @@ const Patient = Conn.define('patient', {
         type: Sequelize.DataTypes.STRING,
         field: 'cor'
     },
-    civil_status: {
+    civilStatus: {
         type: Sequelize.DataTypes.STRING,
         field: 'estado_civil'
     },
@@ -53,7 +187,7 @@ const Patient = Conn.define('patient', {
         type: Sequelize.DataTypes.STRING,
         field: 'profissao'
     },
-    natural_from: {
+    naturalFrom: {
         type: Sequelize.DataTypes.STRING,
         field: 'naturalidade'
     },
@@ -61,7 +195,7 @@ const Patient = Conn.define('patient', {
         type: Sequelize.DataTypes.STRING,
         field: 'procedencia'
     },
-    referred_by: {
+    referredBy: {
         type: Sequelize.DataTypes.STRING,
         field: 'indicacao'
     },
@@ -87,34 +221,33 @@ const Consultation = Conn.define('consultation', {
         allowNull: false
     },
     anamnesis: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.TEXT,
         field: 'anamnese'
     },
     physical: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.TEXT,
         field: 'exame_fisico'
     },
     hypothesis: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.TEXT,
         field: 'hip_diag'
     },
     conduct: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.TEXT,
         field: 'conduta'
     },
     evolution: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.TEXT,
         field: 'evolucao'
     },
     examination: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.TEXT,
         field: 'exames'
     },
-    surgical_procedures: {
-        type: Sequelize.DataTypes.STRING,
+    surgicalProcedures: {
+        type: Sequelize.DataTypes.TEXT,
         field: 'cirurgias'
     },
-    //payments: IPayment[];
 }, {
     tableName: 'CONSULTA_PACIENTE',
     timestamps: false
@@ -122,30 +255,22 @@ const Consultation = Conn.define('consultation', {
 
 // Relationships
 Patient.hasOne(Consultation, {foreignKey: 'id'});
-Consultation.belongsTo(Patient, {foreignKey: 'pac_id'});
+Consultation.belongsTo(Patient, {foreignKey: 'id'});
 
-Conn.sync();
+Doctor.hasMany(Consultation, {foreignKey: 'login'});
+Consultation.belongsTo(Doctor, {foreignKey: 'login'});
 
-//Conn.sync({
-//    //force: true
-//}).then(()=> {
-//    _.times(10, ()=>{
-//        return Patient.create({
-//            id: 0,
-//            name: 'Bozo',
-//            dob: '',
-//            gender: '',
-//            ethnicity: '',
-//            civil_status: '',
-//            phone: '',
-//            profession: '',
-//            address: '',
-//            natural_from: '',
-//            origin: '',
-//            referred_by: '',
-//            obs: '',
-//        });
-//    });
-//});
+Doctor.hasMany(DocType, {foreignKey: 'login'});
+DocType.belongsTo(Doctor, {foreignKey: 'login'});
 
+Patient.hasMany(Payment, {foreignKey: 'id'});
+Payment.belongsTo(Patient, {foreignKey: 'id'});
+
+Doctor.hasMany(Payment, {foreignKey: 'login'});
+Payment.belongsTo(Doctor, {foreignKey: 'login'});
+
+InsuranceProvider.hasMany(Payment, {foreignKey: 'insuranceProviderName'});
+Payment.belongsTo(InsuranceProvider, {foreignKey: 'insuranceProviderName'});
+
+//Export it
 export default Conn;

@@ -1,6 +1,200 @@
-import { GraphQLObjectType,GraphQLInt, GraphQLString, GraphQLList, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType,GraphQLInt, GraphQLFloat, GraphQLString, GraphQLList, GraphQLSchema } from 'graphql';
 import Db from './db';
-import Sequelize from "sequelize";
+import * as Sequelize from "sequelize";
+
+const Op = Sequelize.Op;
+
+const Doctor = new GraphQLObjectType({
+    name: 'Doctor',
+    description: 'This is a doctor',
+    fields: () => {
+        return {
+            login: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.login;
+                }
+            },
+            password: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.password;
+                }
+            },
+            identityDocument: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.identityDocument;
+                }
+            },
+            register: {
+                type: GraphQLInt,
+                resolve(doctor) {
+                    return doctor.register;
+                }
+            },
+            address: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.address;
+                }
+            },
+            gender: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.gender;
+                }
+            },
+            name: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.name;
+                }
+            },
+            phone: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.phone;
+                }
+            },
+            city: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.city;
+                }
+            },
+            state: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.state;
+                }
+            },
+            specialty: {
+                type: GraphQLString,
+                resolve(doctor) {
+                    return doctor.specialty;
+                }
+            },
+            consultations: {
+                type: new GraphQLList(Consultation),
+                args: {
+                    id: { type: GraphQLInt }
+                },
+                resolve(doctor, args) {
+                    return doctor.getConsultations({where:args} );
+                }
+            },
+            docTypes: {
+                type: new GraphQLList(DocType),
+                resolve(doctor) {
+                    return doctor.getDocTypes();
+                }
+            },
+            payments: {
+                type: new GraphQLList(Payment),
+                args: {
+                    insuranceProviderName: { type: GraphQLString }
+                },
+                resolve(doctor, args) {
+                    return doctor.getPayments({where:args});
+                }
+            }
+        }
+    }
+});
+
+const DocType = new GraphQLObjectType({
+    name: 'DocType',
+    description: 'This is a type of document',
+    fields: () => {
+        return {
+           login: {
+                type: GraphQLString,
+                resolve(docType) {
+                    return docType.login;
+                }
+            },
+            name: {
+                type: GraphQLString,
+                resolve(docType) {
+                    return docType.name;
+                }
+            },
+            content: {
+                type: GraphQLString,
+                resolve(docType) {
+                    return docType.content;
+                }
+            },
+        }
+    }
+});
+
+const InsuranceProvider = new GraphQLObjectType({
+    name: 'InsuranceProvider',
+    description: 'This is an insurance provider',
+    fields: () => {
+        return {
+            name: {
+                type: GraphQLString,
+                resolve(insuranceProvider) {
+                    return insuranceProvider.name;
+                }
+            },
+            amountCharged: {
+                type: GraphQLString,
+                resolve(insuranceProvider) {
+                    return insuranceProvider.amountCharged;
+                }
+            },
+        }
+    }
+});
+
+const Payment = new GraphQLObjectType({
+    name: 'Payment',
+    description: 'This is a payment',
+    fields: () => {
+        return {
+            id: {
+                type: GraphQLInt,
+                resolve(payment) {
+                    return payment.id;
+                }
+            },
+            login: {
+                type: GraphQLString,
+                resolve(payment) {
+                    return payment.login;
+                }
+            },
+            date: {
+                type: GraphQLString,
+                resolve(payment) {
+                    return payment.date;
+                }
+            },
+            insuranceProvider: {
+                type: GraphQLString,
+                resolve(payment) {
+                    return payment.insuranceProviderName;
+                }
+            },
+            amountCharged: {
+                type: GraphQLFloat,
+                resolve(payment) {
+                    return payment.amountCharged;
+                }
+            },
+            receipt: {
+                type: GraphQLString,
+                resolve(payment) {
+                    return payment.receipt;
+                }
+            },
+        }
+    }
+});
 
 const Patient = new GraphQLObjectType({
     name: 'Patient',
@@ -37,10 +231,10 @@ const Patient = new GraphQLObjectType({
                     return patient.ethnicity;
                 }
             },
-            civil_status: {
+            civilStatus: {
                 type: GraphQLString,
                 resolve(patient) { //Patient comes from the object definition in db.js
-                    return patient.civil_status;
+                    return patient.civilStatus;
                 }
             },
             phone: {
@@ -61,10 +255,10 @@ const Patient = new GraphQLObjectType({
                     return patient.address;
                 }
             },
-            natural_from: {
+            naturalFrom: {
                 type: GraphQLString,
                 resolve(patient) { //Patient comes from the object definition in db.js
-                    return patient.natural_from;
+                    return patient.naturalFrom;
                 }
             },
             origin: {
@@ -73,10 +267,10 @@ const Patient = new GraphQLObjectType({
                     return patient.origin;
                 }
             },
-            referred_by: {
+            referredBy: {
                 type: GraphQLString,
                 resolve(patient) { //Patient comes from the object definition in db.js
-                    return patient.referred_by;
+                    return patient.referredBy;
                 }
             },
             obs: {
@@ -85,6 +279,18 @@ const Patient = new GraphQLObjectType({
                     return patient.obs;
                 }
             },
+            consultation: {
+                type: Consultation,
+                resolve(patient) {
+                    return patient.getConsultation();
+                }
+            },
+            payments: {
+                type: new GraphQLList(Payment),
+                resolve(patient) {
+                    return patient.getPayments();
+                }
+            }
         }
     }
 });
@@ -94,58 +300,58 @@ const Consultation = new GraphQLObjectType({
     description: 'This is a patient consultation',
     fields: () => {
         return {
-            id: {
-                type: GraphQLString,
+            patient: {
+                type: Patient,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.getPatient();
                 }
             },
             login: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.login;
                 }
             },
             anamnesis: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.anamnesis;
                 }
             },
             physical: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.physical;
                 }
             },
             hypothesis: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.hypothesis;
                 }
             },
             conduct: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.conduct;
                 }
             },
             evolution: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.evolution;
                 }
             },
             examination: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.examination;
                 }
             },
-            surgical_procedures: {
+            surgicalProcedures: {
                 type: GraphQLString,
                 resolve(consultation) { //Patient comes from the object definition in db.js
-                    return consultation.obs;
+                    return consultation.surgicalProcedures;
                 }
             },
         }
@@ -157,17 +363,15 @@ const Query = new GraphQLObjectType({
    description: 'This is a root query',
    fields: () => {
        return {
-           patients: {
-               type: new GraphQLList(Patient),
+           doctor: {
+               type: new GraphQLList(Doctor),
                args: {
-                   id: {
-                       type: GraphQLInt
-                   },
+                   login: { type: GraphQLString }
                },
                resolve(root, args) {
-                   return Db.models.patient.findAll({where: args});
+                   return Db.models.doctor.findAll({where:args});
                }
-           }
+           },
        }
    }
 });
