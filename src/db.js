@@ -1,11 +1,11 @@
 import Sequelize from 'sequelize';
 
 const Conn = new Sequelize(
-    'myDb',
-    'myUser',
-    'myPass', {
+    process.env.myDb, // NOTE: Must set the environment variable!
+    process.env.myUser, // NOTE: Must set the environment variable!
+    process.env.myPass, { // NOTE: Must set the environment variable!
         dialect: 'mysql',
-        host: 'myHost',
+        host: process.env.myHost, // NOTE: Must set the environment variable!
         define: {
             charset: 'utf8',
             collate: 'utf8_general_ci'
