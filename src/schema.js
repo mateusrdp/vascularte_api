@@ -1,3 +1,10 @@
+/**
+ * TODO: Implement super users (i.e.: admin - can add Drs)
+ * TODO: Restrict information retrieved by restricted users
+ * TODO: Restrict mutations allowed by normal users (i.e.: no managing users / setting up system)
+ * TODO: modularise all this per abstraction (too much code in just one js!)
+ */
+
 import {
     GraphQLObjectType,
     GraphQLInt,
@@ -161,7 +168,7 @@ const InsuranceProvider = new GraphQLObjectType({
                 }
             },
             amountCharged: {
-                type: GraphQLString,
+                type: GraphQLFloat,
                 resolve(insuranceProvider) {
                     return insuranceProvider.amountCharged;
                 }
@@ -377,72 +384,146 @@ const Consultation = new GraphQLObjectType({
     }
 });
 
-//Main Query
+// Queries
 const Query = new GraphQLObjectType({
-   name: 'Query',
-   description: 'Queries to retrieve stuff',
+   name: 'Queries',
+   description: 'Queries publicly available. Implement the R(ead) of CRUD.',
    fields: () => {
        return {
            doctor: {
                type: Doctor,
                args: {
-                   login: { type: GraphQLString }
+                   login: { type: new GraphQLNonNull(GraphQLString) }
                },
                resolve(root, args) {
                    return Db.models.doctor.findOne({where:args});
                }
            },
-           /*patient: {
+           patient: {
                type: new GraphQLList(Patient),
                args: {
                    name: { type: GraphQLString}
                },
                resolve(root, args) {
-                   return Db.models.patient.findAll({where:args});
+                   if (args.name) {
+                       return Db.models.patient.findAll({
+                           where: {
+                               name: {
+                                   [Op.like]: '%' + args.name + '%'
+                               },
+                           }
+                       });
+                   } else return Db.models.patient.findAll();
                }
            },
-           /*consultation: {
-               type: new GraphQLList(Consultation),
-               args: {
-                   login: { type: GraphQLString },
-                   name: {type: GraphQLString}
-               },
-               resolve(root, args) {
-                   return Db.models.patient.findAll({
-                       where: {
-                           [Op.and]: [
-                               { login: {[Op.eq]: args.login} },
-                               { name: {[Op.like]: args.name+"%"} },
-                           ]
-                       },
-                       include: [Patient]
-                   })
-               }
-           }*/
        }
    }
 });
 
 const Mutation = new GraphQLObjectType({
-    name: 'Mutation',
-    description: 'Mutations to create, delete and update stuff',
+    name: 'Mutations',
+    description: 'Mutations publicly available. Implement the [C(reate),U(pdate),D(elete)] bits of CRUD.',
     fields () {
         return {
+            addDoctor: {
+                type: Doctor,
+                args: {
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                    password: {type: new GraphQLNonNull(GraphQLString)},
+                    identifyDocument: {type: new GraphQLNonNull(GraphQLString)},
+                    register: {type: GraphQLInt},
+                    address: {type: GraphQLString},
+                    gender: {type: GraphQLString},
+                    name: {type: GraphQLString},
+                    phone: {type: GraphQLString},
+                    city: {type: GraphQLString},
+                    state: {type: GraphQLString},
+                    specialty: {type: GraphQLString},
+                },
+                resolve(root, args) {
+                    return Db.models.doctor.create({
+                        login: args.login,
+                        password: args.password,
+                        identifyDocument: args.identifyDocument,
+                        register: args.register,
+                        address: args.address,
+                        gender: args.gender,
+                        name: args.name,
+                        phone: args.phone,
+                        city: args.city,
+                        state: args.state,
+                        specialty: args.specialty,
+                    });
+                }
+            },
+            updateDoctor: {
+                type: Doctor,
+                args: {
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                    password: {type: GraphQLString},
+                    identifyDocument: {type: GraphQLString},
+                    register: {type: GraphQLInt},
+                    address: {type: GraphQLString},
+                    gender: {type: GraphQLString},
+                    name: {type: GraphQLString},
+                    phone: {type: GraphQLString},
+                    city: {type: GraphQLString},
+                    state: {type: GraphQLString},
+                    specialty: {type: GraphQLString},
+                },
+                resolve(root, args) {
+                    return Db.models.doctor.findById(args.id).then(
+                        doctor => {
+                            if (doctor) {
+                                // Stupid bug forces me to change the name everytime or else it violates nonnull on it!
+                                // See updatePatient() for the cleaner solution, that doesn't work
+                                if (args.password) doctor.password = args.password;
+                                if (args.identifyDocument) doctor.identifyDocument = args.identifyDocument;
+                                if (args.register) doctor.register = args.register;
+                                if (args.address) doctor.address = args.address;
+                                if (args.gender) doctor.gender = args.gender;
+                                if (args.name) doctor.name = args.name;
+                                if (args.phone) doctor.phone = args.phone;
+                                if (args.city) doctor.city = args.city;
+                                if (args.state) doctor.state = args.state;
+                                if (args.specialty) doctor.special = args.specialty;
+
+                                return doctor.save();
+                            }
+                        }
+                    ).catch(error => {
+                        return {Error: error};
+                    });
+                }
+            },
+            removeDoctor: {
+                type: Doctor,
+                args: {
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                },
+                resolve(root, args) {
+                    return Db.models.doctor.findById(args.login).then(doctor => {
+                        return doctor.destroy();
+                    }).catch(error => {
+                        return {Error: error};
+                    });
+                }
+            },
             addPatient: {
                 type: Patient,
                 args: {
-                    name: { type: new GraphQLNonNull(GraphQLString) },
-                    dob: { type: new GraphQLNonNull(GraphQLString) },
-                    gender: { type: new GraphQLNonNull(GraphQLString) },
-                    ethnicity: { type: GraphQLString },
-                    civilStatus: { type: GraphQLString },
-                    phone: { type: GraphQLString },
-                    address: { type: GraphQLString },
-                    profession: { type: GraphQLString },
-                    naturalFrom: { type: GraphQLString },
-                    origin: { type: GraphQLString },
-                    referredBy: { type: GraphQLString },
-                    obs: { type: GraphQLString },
+                    name: {type: new GraphQLNonNull(GraphQLString)},
+                    dob: {type: new GraphQLNonNull(GraphQLString)},
+                    gender: {type: new GraphQLNonNull(GraphQLString)},
+                    ethnicity: {type: GraphQLString},
+                    civilStatus: {type: GraphQLString},
+                    phone: {type: GraphQLString},
+                    address: {type: GraphQLString},
+                    profession: {type: GraphQLString},
+                    naturalFrom: {type: GraphQLString},
+                    origin: {type: GraphQLString},
+                    referredBy: {type: GraphQLString},
+                    obs: {type: GraphQLString},
                 },
                 resolve(root, args) {
                     return Db.models.patient.create({
@@ -450,7 +531,7 @@ const Mutation = new GraphQLObjectType({
                         name: args.name,
                         dob: args.dob,
                         gender: args.gender,
-                        ethnicity:  args.ethnicity,
+                        ethnicity: args.ethnicity,
                         civilStatus: args.civilStatus,
                         phone: args.phone,
                         address: args.address,
@@ -465,19 +546,19 @@ const Mutation = new GraphQLObjectType({
             updatePatient: {
                 type: Patient,
                 args: {
-                    id: { type: new GraphQLNonNull(GraphQLInt) },
-                    name: { type: GraphQLString },
-                    dob: { type: GraphQLString },
-                    gender: { type: GraphQLString },
-                    ethnicity: { type: GraphQLString },
-                    civilStatus: { type: GraphQLString },
-                    phone: { type: GraphQLString },
-                    address: { type: GraphQLString },
-                    profession: { type: GraphQLString },
-                    naturalFrom: { type: GraphQLString },
-                    origin: { type: GraphQLString },
-                    referredBy: { type: GraphQLString },
-                    obs: { type: GraphQLString },
+                    id: {type: new GraphQLNonNull(GraphQLInt)},
+                    name: {type: GraphQLString},
+                    dob: {type: GraphQLString},
+                    gender: {type: GraphQLString},
+                    ethnicity: {type: GraphQLString},
+                    civilStatus: {type: GraphQLString},
+                    phone: {type: GraphQLString},
+                    address: {type: GraphQLString},
+                    profession: {type: GraphQLString},
+                    naturalFrom: {type: GraphQLString},
+                    origin: {type: GraphQLString},
+                    referredBy: {type: GraphQLString},
+                    obs: {type: GraphQLString},
                 },
                 resolve(root, args) {
                     return Db.models.patient.findById(args.id).then(
@@ -499,18 +580,18 @@ const Mutation = new GraphQLObjectType({
                                     obs: args.obs,
                                 })*/
                                 //Bugfix
-                                if (args.name) patient.name=args.name;
-                                if (args.dob) patient.dob=args.dob;
-                                if (args.gender) patient.gender=args.gender;
-                                if (args.ethnicity) patient.ethnicity=args.ethnicity;
-                                if (args.civilStatus) patient.civilStatus=args.civilStatus;
-                                if (args.phone) patient.phone=args.phone;
-                                if (args.address) patient.address=args.address;
-                                if (args.profession) patient.profession=args.profession;
-                                if (args.naturalFrom) patient.naturalFrom=args.naturalFrom;
-                                if (args.origin) patient.origin=args.origin;
-                                if (args.referredBy) patient.referredBy=args.referredBy;
-                                if (args.obs) patient.obs=args.obs;
+                                if (args.name) patient.name = args.name;
+                                if (args.dob) patient.dob = args.dob;
+                                if (args.gender) patient.gender = args.gender;
+                                if (args.ethnicity) patient.ethnicity = args.ethnicity;
+                                if (args.civilStatus) patient.civilStatus = args.civilStatus;
+                                if (args.phone) patient.phone = args.phone;
+                                if (args.address) patient.address = args.address;
+                                if (args.profession) patient.profession = args.profession;
+                                if (args.naturalFrom) patient.naturalFrom = args.naturalFrom;
+                                if (args.origin) patient.origin = args.origin;
+                                if (args.referredBy) patient.referredBy = args.referredBy;
+                                if (args.obs) patient.obs = args.obs;
 
                                 return patient.save(); //.then(patient => { return patient; } );
                             }
@@ -523,11 +604,164 @@ const Mutation = new GraphQLObjectType({
             removePatient: {
                 type: Patient,
                 args: {
-                    id: { type: new GraphQLNonNull(GraphQLInt) },
+                    id: {type: new GraphQLNonNull(GraphQLInt)},
                 },
                 resolve(root, args) {
                     return Db.models.patient.findById(args.id).then(patient => {
-                       return patient.destroy();
+                        return patient.destroy();
+                    }).catch(error => {
+                        return {Error: error};
+                    });
+                }
+            },
+            addPayment: {
+                type: Payment,
+                args: {
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                    date: {type: new GraphQLNonNull(GraphQLString)},
+                    insuranceProvider: {type: new GraphQLNonNull(GraphQLString)},
+                    amountCharged: {type: new GraphQLNonNull(GraphQLFloat)},
+                    receipt: {type: new GraphQLNonNull(GraphQLString)},
+                },
+                resolve(root, args) {
+                    return Db.models.payments.create({
+                        login:args.login,
+                        date:args.date,
+                        insuranceProvider:args.insuranceProvider,
+                        amountCharged:args.amountCharged,
+                        receipt: args.receipt
+                    });
+                }
+            },
+            updatePayment: {
+                type: Payment,
+                args: {
+                    id: {type: new GraphQLNonNull(GraphQLInt)},
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                    date: {type: GraphQLString},
+                    insuranceProvider: {type: GraphQLString},
+                    amountCharged: {type: GraphQLFloat},
+                    receipt: {type: GraphQLString},
+                },
+                resolve(root, args) {
+                    return Db.models.payment.findById(args.id).then(
+                        payment => {
+                            if (payment) {
+                                if (args.date) payment.date = args.date;
+                                if (args.insuranceProvider) payment.insuranceProvider = args.insuranceProvider;
+                                if (args.amountCharged) payment.amountCharged = args.amountCharged;
+                                if (args.receipt) payment.receipt = args.receipt;
+                                return payment.save();
+                            }
+                        }
+                    ).catch(error => {
+                        return {Error: error};
+                    });
+                }
+            },
+            removePayment: {
+                type: Payment,
+                args: {
+                    id: {type: new GraphQLNonNull(GraphQLInt)},
+                },
+                resolve(root, args) {
+                    return Db.models.payment.findById(args.id).then(payment => {
+                        return payment.destroy();
+                    }).catch(error => {
+                        return {Error: error};
+                    });
+                }
+            },
+            addDocType: {
+                type: DocType,
+                args: {
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                    name: {type: new GraphQLNonNull(GraphQLString)},
+                    content: {type: GraphQLString},
+                },
+                resolve(root, args) {
+                    return Db.models.docType.create({
+                        login: args.login,
+                        name: args.name,
+                        content: args.name
+                    });
+                }
+            },
+            updateDocType: {
+                type: DocType,
+                args: {
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                    name: {type: new GraphQLNonNull(GraphQLString)},
+                    content: {type: GraphQLString},
+                },
+                resolve(root, args) {
+                    return Db.models.docType.findOne({where:args}).then(
+                        docType => {
+                            if (docType) {
+                                if (args.name) docType.name = args.name;
+                                if (args.content) docType.content = args.content;
+                                return docType.save();
+                            }
+                        }
+                    ).catch(error => {
+                        return {Error: error};
+                    });
+                }
+            },
+            removeDocType: {
+                type: DocType,
+                args: {
+                    login: {type: new GraphQLNonNull(GraphQLString)},
+                    name: {type: new GraphQLNonNull(GraphQLString)},
+                },
+                resolve(root, args) {
+                    return Db.models.docType.findOne({where:args}).then(docType => {
+                        return docType.destroy();
+                    }).catch(error => {
+                        return {Error: error};
+                    });
+                }
+            },
+            addInsuranceProvider: {
+                type: InsuranceProvider,
+                args: {
+                    name: {type: GraphQLNonNull(GraphQLString)},
+                    amountCharged: {type: GraphQLFloat}
+                },
+                resolve(root, args) {
+                    return Db.models.insuranceProvider.create({
+                        name: args.name,
+                        amountCharged: args.amountCharged
+                    });
+                }
+            },
+            updateInsuranceProvider: {
+                type: InsuranceProvider,
+                args: {
+                    name: {type: GraphQLNonNull(GraphQLString)},
+                    amountCharged: {type: GraphQLFloat}
+                },
+                resolve(root, args) {
+                    return Db.models.insuranceProvider.findOne({where:args}).then(
+                        insuranceProvider => {
+                            if (insuranceProvider) {
+                                if (args.amountCharged) insuranceProvider.amountCharged = args.amountCharged;
+                                return insuranceProvider.save();
+                            }
+                        }
+                    ).catch(error => {
+                            return {Error: error};
+                    });
+                }
+            },
+            removeInsuranceProvider: {
+                type: InsuranceProvider,
+                args: {
+                    name: {type: GraphQLNonNull(GraphQLString)}
+                },
+                resolve(root, args) {
+                    return Db.models.insuranceProvider.findOne({where:args}).then(insuranceProvider => {
+                        return insuranceProvider.destroy();
                     }).catch(error => {
                         return {Error: error};
                     });

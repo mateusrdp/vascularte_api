@@ -254,23 +254,38 @@ const Consultation = Conn.define('consultation', {
 });
 
 // Relationships
-Patient.hasOne(Consultation, {foreignKey: 'id'});
-Consultation.belongsTo(Patient, {foreignKey: 'id'});
-
-Doctor.hasMany(Consultation, {foreignKey: 'login'});
-Consultation.belongsTo(Doctor, {foreignKey: 'login'});
+Patient.hasMany(Consultation, {foreignKey: 'id'}); // At most one with each registered dr
+Doctor.hasMany(Consultation, {foreignKey: 'login'}); // At most one with each patient
+/*
+    Consultation doesn't really have a primary key - it has a compound one: (id, login),
+    to indicate the relationship between dr and patient. Sequelize doesn't support that,
+    so we just say to what the foreign keys point to
+ */
+Consultation.belongsTo(Doctor, {foreignKey: 'login', target:'login'});
+Consultation.belongsTo(Patient, {foreignKey: 'id', target: 'id'});
 
 Doctor.hasMany(DocType, {foreignKey: 'login'});
-DocType.belongsTo(Doctor, {foreignKey: 'login'});
+/*
+    Similar to Consultation. The primary key is compound (name, login), so we assume 'name' is
+    the primary key, and point the foreign key to a custom location
+ */
 
+DocType.belongsTo(Doctor, {foreignKey: 'login', target:'login'});
+
+/*
+    This one is even more complicated than the previous two. The primary key is [id, login, date],
+    so we completely disregard the existance of primary keys - the DB should worry about that.
+    In the future, we should introduce an id here for indexing purposes.
+
+    For our purposes here, however, it suffices to point Payment to the correct owners using
+    foreign keys
+ */
 Patient.hasMany(Payment, {foreignKey: 'id'});
-Payment.belongsTo(Patient, {foreignKey: 'id'});
-
 Doctor.hasMany(Payment, {foreignKey: 'login'});
-Payment.belongsTo(Doctor, {foreignKey: 'login'});
-
 InsuranceProvider.hasMany(Payment, {foreignKey: 'insuranceProviderName'});
-Payment.belongsTo(InsuranceProvider, {foreignKey: 'insuranceProviderName'});
+Payment.belongsTo(Patient, {foreignKey: 'id', target: 'id'});
+Payment.belongsTo(Doctor, {foreignKey: 'login', target: 'login'});
+Payment.belongsTo(InsuranceProvider, {foreignKey: 'insuranceProviderName', target:'insuranceProviderName'});
 
 //Export it
 export default Conn;
