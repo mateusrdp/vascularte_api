@@ -121,7 +121,7 @@ const Payment = Conn.define('payment', {
         allowNull: false
     },
     date: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.DATE,
         field: 'data',
         primaryKey: true,
         allowNull: false

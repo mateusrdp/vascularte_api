@@ -1,6 +1,6 @@
 exports.dummyDoctor = {
     login: "mateusrp",
-    password: "mafera",
+    password: "mateus",
     identityDocument: "10",
     register: 10,
     address: "My address",
@@ -10,7 +10,6 @@ exports.dummyDoctor = {
     city: "BH",
     state: "MG",
     specialty: "Comp Sci",
-
 };
 
 exports.dummyPatient = {
