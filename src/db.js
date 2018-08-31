@@ -132,12 +132,12 @@ const Payment = Conn.define('payment', {
         allowNull: false
     },
     amountCharged: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.FLOAT,
         field: 'cobrado',
         allowNull: false
     },
     receipt: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.FLOAT,
         field: 'recibo',
         allowNull: false
     },

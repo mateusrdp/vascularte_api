@@ -213,7 +213,7 @@ const Payment = new GraphQLObjectType({
                 }
             },
             receipt: {
-                type: GraphQLString,
+                type: GraphQLFloat,
                 resolve(payment) {
                     return payment.receipt;
                 }
@@ -621,7 +621,7 @@ const Mutation = new GraphQLObjectType({
                     date: {type: new GraphQLNonNull(GraphQLString)},
                     insuranceProvider: {type: new GraphQLNonNull(GraphQLString)},
                     amountCharged: {type: new GraphQLNonNull(GraphQLFloat)},
-                    receipt: {type: new GraphQLNonNull(GraphQLString)},
+                    receipt: {type: new GraphQLNonNull(GraphQLFloat)},
                 },
                 resolve(root, args) {
                     return Db.models.payments.create({
@@ -641,7 +641,7 @@ const Mutation = new GraphQLObjectType({
                     date: {type: GraphQLString},
                     insuranceProvider: {type: GraphQLString},
                     amountCharged: {type: GraphQLFloat},
-                    receipt: {type: GraphQLString},
+                    receipt: {type: GraphQLFloat},
                 },
                 resolve(root, args) {
                     return Db.models.payment.findById(args.id).then(

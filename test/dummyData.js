@@ -14,7 +14,7 @@ exports.dummyDoctor = {
 };
 
 exports.dummyPatient = {
-    id: 0,
+    id: 1,
     name: "Stacey",
     dob:  "24/07/1988",
     gender: "F",
@@ -54,10 +54,10 @@ exports.dummyDocType = {
 };
 
 exports.dummyPayment = {
-    id: 0,
+    id: 1,
     login: exports.dummyDoctor.login,
-    date: "10/10/2018",
+    date: "2018-10-10",
     insuranceProviderName: exports.dummyInsuranceProvider.name,
-    amountCharged: exports.dummyInsuranceProvider.amountCharged+10,
-    receipt: "PAID",
+    amountCharged: exports.dummyInsuranceProvider.amountCharged,
+    receipt: exports.dummyInsuranceProvider.amountCharged,
 };
