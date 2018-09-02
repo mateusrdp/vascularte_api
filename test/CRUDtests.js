@@ -8,10 +8,16 @@
  *
  * TODO: this needs to take the async nature of DB access into consideration! Either use direct callbacks or promises!
  */
-const chai = require('chai');
+import chai from 'chai';
 
-const SQL = require('./rawSQL');
-const rubric = require('./rubric');
+import * as SQL from './rawSQL';
+import * as rubric from './sql_table_rubric';
+import Schema from '../src/schema.js';
+import tester from 'graphql-tester';
+import * as dummyData from 'dummyData';
+
+let check_mysql_tables = process.env.testMySQLTables; // NOTE: Must set the environment variable!
+
 
 /**
  * ACTUAL TESTS START HERE
@@ -20,9 +26,16 @@ const rubric = require('./rubric');
  */
 
 describe("DB CRUD Functionality", ()=> {
+    let myTest = tester({
+       url: process.env.myServer
+    });
     beforeEach(SQL.resetDB);
     describe("Doctor CRUD Functionality", ()=> {
-        it("Doctor can be (C)reated", async ()=>{});
+        it("Doctor can be (C)reated", async ()=>{
+            let result = Schema(
+
+            );
+        });
         describe("When a Doctor exists", async ()=>{
             beforeEach(SQL.addDummyDoctorDirectly);
             it("Document Type can be (C)reated", async ()=>{});
@@ -75,7 +88,8 @@ describe("DB CRUD Functionality", ()=> {
             it("Payment can be (C)reated", async ()=>{});
             describe("When a Payment from a Patient to a Doctor exists", ()=>{
                 beforeEach(SQL.addDummyPaymentDirectly);
-                it("Payment can be (R)ead", async ()=>{});
+                it("Payment can be (R)ead by via the Doctor", async ()=>{});
+                it("Payment can be (R)ead by via the Patient", async ()=>{});
                 it("Payment can be (U)pdated", async ()=>{});
                 it("Payment can be (D)eleted", async ()=>{});
             });

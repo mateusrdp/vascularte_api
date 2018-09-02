@@ -1,5 +1,6 @@
-const mysql = require('promise-mysql');
-const dummyData = require('./dummyData');
+import mysql from 'promise-mysql';
+import dummyData from './dummyData';
+
 /**
  * Database initial state setup
  */

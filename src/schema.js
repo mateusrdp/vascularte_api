@@ -3,6 +3,7 @@
  * TODO: Restrict information retrieved by restricted users
  * TODO: Restrict mutations allowed by normal users (i.e.: no managing users / setting up system)
  * TODO: modularise all this per abstraction (too much code in just one js!)
+ * TODO: Implement mock operations, so we don't have to rely on the DB!
  */
 
 import {
@@ -14,6 +15,7 @@ import {
     GraphQLSchema,
     GraphQLNonNull
 } from 'graphql';
+
 import Db from './db';
 import * as Sequelize from "sequelize";
 
@@ -90,7 +92,7 @@ const Doctor = new GraphQLObjectType({
                     return doctor.specialty;
                 }
             },
-            consultations: {
+            consultation: {
                 type: new GraphQLList(Consultation),
                 args: {
                     id: { type: GraphQLInt },
@@ -110,13 +112,13 @@ const Doctor = new GraphQLObjectType({
                     })
                 }
             },
-            docTypes: {
+            docType: {
                 type: new GraphQLList(DocType),
                 resolve(doctor) {
                     return doctor.getDocTypes();
                 }
             },
-            payments: {
+            payment: {
                 type: new GraphQLList(Payment),
                 args: {
                     insuranceProviderName: { type: GraphQLString }
@@ -430,7 +432,7 @@ const Mutation = new GraphQLObjectType({
                 args: {
                     login: {type: new GraphQLNonNull(GraphQLString)},
                     password: {type: new GraphQLNonNull(GraphQLString)},
-                    identifyDocument: {type: new GraphQLNonNull(GraphQLString)},
+                    identityDocument: {type: new GraphQLNonNull(GraphQLString)},
                     register: {type: GraphQLInt},
                     address: {type: GraphQLString},
                     gender: {type: GraphQLString},
@@ -444,7 +446,7 @@ const Mutation = new GraphQLObjectType({
                     return Db.models.doctor.create({
                         login: args.login,
                         password: args.password,
-                        identifyDocument: args.identifyDocument,
+                        identityDocument: args.identifyDocument,
                         register: args.register,
                         address: args.address,
                         gender: args.gender,
@@ -461,7 +463,7 @@ const Mutation = new GraphQLObjectType({
                 args: {
                     login: {type: new GraphQLNonNull(GraphQLString)},
                     password: {type: GraphQLString},
-                    identifyDocument: {type: GraphQLString},
+                    identityDocument: {type: GraphQLString},
                     register: {type: GraphQLInt},
                     address: {type: GraphQLString},
                     gender: {type: GraphQLString},

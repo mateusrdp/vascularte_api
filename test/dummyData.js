@@ -28,7 +28,6 @@ exports.dummyPatient = {
     obs: "Cute",
 };
 
-
 exports.dummyInsuranceProvider = {
     name: "MateusMed",
     amountCharged: "100.0"
