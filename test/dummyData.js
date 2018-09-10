@@ -2,7 +2,7 @@ exports.dummyDoctor = {
     login: "mateusrp",
     password: "mateus",
     identityDocument: "10",
-    register: 10,
+    register: 15,
     address: "My address",
     gender: "M",
     name: "Mateus",
@@ -15,7 +15,7 @@ exports.dummyDoctor = {
 exports.dummyPatient = {
     id: 1,
     name: "Stacey",
-    dob:  "24/07/1988",
+    dob:  "1988-07-24",
     gender: "F",
     ethnicity:  "Caucasian",
     civilStatus: "Single",
@@ -54,7 +54,7 @@ exports.dummyDocType = {
 exports.dummyPayment = {
     id: 1,
     login: exports.dummyDoctor.login,
-    date: "2018-10-10",
+    date: "2018-10-30",
     insuranceProviderName: exports.dummyInsuranceProvider.name,
     amountCharged: exports.dummyInsuranceProvider.amountCharged,
     receipt: exports.dummyInsuranceProvider.amountCharged,

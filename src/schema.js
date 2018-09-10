@@ -21,6 +21,27 @@ import * as Sequelize from "sequelize";
 
 const Op = Sequelize.Op;
 
+const AuthPayLoad = new GraphQLObjectType({
+   name: 'AuthPayLoad',
+   description: 'Authorization stuff',
+    fields: () => {
+       return {
+           token: {
+               type: GraphQLString,
+               resolve(authPayLoad) {
+                   return authPayLoad.token;
+               }
+           },
+           login: {
+               type: GraphQLString,
+               resolve(authPayLoad) {
+                   return authPayLoad.login;
+               }
+           }
+       }
+    }
+});
+
 const Doctor = new GraphQLObjectType({
     name: 'Doctor',
     description: 'This is a doctor',
@@ -446,7 +467,7 @@ const Mutation = new GraphQLObjectType({
                     return Db.models.doctor.create({
                         login: args.login,
                         password: args.password,
-                        identityDocument: args.identifyDocument,
+                        identityDocument: args.identityDocument,
                         register: args.register,
                         address: args.address,
                         gender: args.gender,
@@ -685,7 +706,7 @@ const Mutation = new GraphQLObjectType({
                     return Db.models.docType.create({
                         login: args.login,
                         name: args.name,
-                        content: args.name
+                        content: args.content
                     });
                 }
             },

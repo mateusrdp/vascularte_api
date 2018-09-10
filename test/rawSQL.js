@@ -1,6 +1,8 @@
 import mysql from 'promise-mysql';
 import dummyData from './dummyData';
 
+const rawPrefix = 'raw';
+
 /**
  * Database initial state setup
  */
@@ -91,7 +93,7 @@ exports.resetDB = function() {
             '  FOREIGN KEY (`login`) REFERENCES `MEDICO` (`login`) ON DELETE CASCADE ON UPDATE CASCADE\n' +
             ') ENGINE=InnoDB;');
     }).then(function(){
-        var result = connection.query('CREATE TABLE IF NOT EXISTS `PAGAMENTOS` (\n' +
+        const result = connection.query('CREATE TABLE IF NOT EXISTS `PAGAMENTOS` (\n' +
             '  `pac_id` int NOT NULL,\n' +
             '  `login` varchar(15) NOT NULL,\n' +
             '  `data` date NOT NULL,\n' +
@@ -104,7 +106,9 @@ exports.resetDB = function() {
             ') ENGINE=InnoDB;');
         connection.end();
         return result;
-    })
+    }).catch( (error) => {
+        console.log(error);
+    });
 }
 
 /**
@@ -122,7 +126,7 @@ exports.addDummyDoctorDirectly = function() {
             dummyData.dummyDoctor.register +","  +
             "'" + dummyData.dummyDoctor.address +"',"  +
             "'" + dummyData.dummyDoctor.gender +"',"  +
-            "'" + dummyData.dummyDoctor.name +"',"  +
+            "'" + rawPrefix +dummyData.dummyDoctor.name +"',"  +
             "'" + dummyData.dummyDoctor.phone +"',"  +
             "'" + dummyData.dummyDoctor.city +"',"  +
             "'" + dummyData.dummyDoctor.state +"',"  +
@@ -142,7 +146,7 @@ exports.addDummyDocTypeDirectly = function() {
             'VALUES (' +
             "'" + dummyData.dummyDocType.login + "'," +
             "'" + dummyData.dummyDocType.name + "'," +
-            "'" + dummyData.dummyDocType.content + "'" +
+            "'" + rawPrefix + dummyData.dummyDocType.content + "'" +
             ')',
         );
         connection.end();
@@ -156,7 +160,7 @@ exports.addDummyPatientDirectly = function() {
             'INSERT INTO DADOS_PACIENTE' +
             ' ( nome, nascimento, sexo, cor, estado_civil, tel, end, profissao, naturalidade, procedencia, indicacao, obs ) ' +
             'VALUES (' +
-            "'" + dummyData.dummyPatient.name +"',"  +
+            "'" + rawPrefix + dummyData.dummyPatient.name +"',"  +
             "'" + dummyData.dummyPatient.dob +"',"  +
             "'" + dummyData.dummyPatient.gender +"',"  +
             "'" + dummyData.dummyPatient.ethnicity +"',"  +
@@ -183,7 +187,7 @@ exports.addDummyInsuranceProviderDirectly = function() {
             ' ( convenio, cobrado ) ' +
             'VALUES (' +
             "'" + dummyData.dummyInsuranceProvider.name + "',"  +
-            dummyData.dummyInsuranceProvider.amountCharged  +
+            (dummyData.dummyInsuranceProvider.amountCharged + 100) + //+100 just to make it different from using Sequelize
             ')'
         );
         connection.end();
@@ -199,7 +203,7 @@ exports.addDummyConsultationDirectly = function() {
             'VALUES (' +
             dummyData.dummyConsultation.id +','+
             "'" + dummyData.dummyConsultation.login + "'," +
-            "'" + dummyData.dummyConsultation.anamnesis + "'," +
+            "'" + rawPrefix + dummyData.dummyConsultation.anamnesis + "'," +
             "'" + dummyData.dummyConsultation.physical + "'," +
             "'" + dummyData.dummyConsultation.hypothesis + "'," +
             "'" + dummyData.dummyConsultation.conduct + "'," +
@@ -223,7 +227,7 @@ exports.addDummyPaymentDirectly = function() {
             "'" + dummyData.dummyPayment.login + "'," +
             "'" + dummyData.dummyPayment.date + "'," +
             "'" + dummyData.dummyPayment.insuranceProviderName + "'," +
-            dummyData.dummyPayment.amountCharged +','+
+            (dummyData.dummyPayment.amountCharged + 100) + ','+ //+100 just to make it different from using Sequelize
             dummyData.dummyPayment.receipt +
             ')'
         );

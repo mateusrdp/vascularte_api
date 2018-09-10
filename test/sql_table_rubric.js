@@ -23,16 +23,16 @@ exports.doctorCreated =  {
 
 exports.doctorUpdated  = {
         'login': dummyData.dummyDoctor.login ,
-        'senha': dummyData.dummyDoctor.password + updateSuffix ,
-        'cpf': dummyData.dummyDoctor.identityDocument + updateSuffix ,
-        'crm':  (dummyData.dummyDoctor.register + updateIncrement),
-        'end': dummyData.dummyDoctor.address + updateSuffix ,
-        'sexo': dummyData.dummyDoctor.gender + updateSuffix ,
-        'nome': dummyData.dummyDoctor.name + updateSuffix ,
-        'teldono': dummyData.dummyDoctor.phone + updateSuffix ,
-        'cidade': dummyData.dummyDoctor.city + updateSuffix ,
-        'estado': dummyData.dummyDoctor.state + updateSuffix ,
-        'especialidade': dummyData.dummyDoctor.specialty + updateSuffix
+        'senha': dummyData.dummyDoctor.password + exports.updateSuffix ,
+        'cpf': dummyData.dummyDoctor.identityDocument + exports.updateSuffix ,
+        'crm':  (dummyData.dummyDoctor.register + exports.updateIncrement),
+        'end': dummyData.dummyDoctor.address + exports.updateSuffix ,
+        'sexo': dummyData.dummyDoctor.gender + exports.updateSuffix ,
+        'nome': dummyData.dummyDoctor.name + exports.updateSuffix ,
+        'teldono': dummyData.dummyDoctor.phone + exports.updateSuffix ,
+        'cidade': dummyData.dummyDoctor.city + exports.updateSuffix ,
+        'estado': dummyData.dummyDoctor.state + exports.updateSuffix ,
+        'especialidade': dummyData.dummyDoctor.specialty + exports.updateSuffix
 };
 
 exports.docTypeCreated = {
@@ -43,8 +43,8 @@ exports.docTypeCreated = {
 
 exports.docTypeUpdated = {
     'login': dummyData.dummyDocType.login ,
-    'nome': dummyData.dummyDocType.name + updateSuffix ,
-    'conteudo': dummyData.dummyDocType.content + updateSuffix
+    'nome': dummyData.dummyDocType.name + exports.updateSuffix ,
+    'conteudo': dummyData.dummyDocType.content + exports.updateSuffix
 };
 
 exports.patientCreated = {
@@ -64,19 +64,19 @@ exports.patientCreated = {
 };
 
 exports.patientUpdated = {
-    'id': dummyData.dummyPatient.id + updateSuffix ,
-    'nome': dummyData.dummyPatient.name + updateSuffix ,
-    'nascimento': dummyData.dummyPatient.dob + updateSuffix ,
-    'sexo': dummyData.dummyPatient.gender + updateSuffix ,
-    'cor': dummyData.dummyPatient.ethnicity + updateSuffix ,
-    'estado_civil': dummyData.dummyPatient.civilStatus + updateSuffix ,
-    'tel': dummyData.dummyPatient.phone + updateSuffix ,
-    'end': dummyData.dummyPatient.address + updateSuffix ,
-    'profissao': dummyData.dummyPatient.profession + updateSuffix ,
-    'naturalidade': dummyData.dummyPatient.naturalFrom + updateSuffix ,
-    'procedencia': dummyData.dummyPatient.origin + updateSuffix ,
-    'indicacao': dummyData.dummyPatient.referredBy + updateSuffix ,
-    'obs': dummyData.dummyPatient.obs + updateSuffix
+    'id': dummyData.dummyPatient.id + exports.updateSuffix ,
+    'nome': dummyData.dummyPatient.name + exports.updateSuffix ,
+    'nascimento': dummyData.dummyPatient.dob + exports.updateSuffix ,
+    'sexo': dummyData.dummyPatient.gender + exports.updateSuffix ,
+    'cor': dummyData.dummyPatient.ethnicity + exports.updateSuffix ,
+    'estado_civil': dummyData.dummyPatient.civilStatus + exports.updateSuffix ,
+    'tel': dummyData.dummyPatient.phone + exports.updateSuffix ,
+    'end': dummyData.dummyPatient.address + exports.updateSuffix ,
+    'profissao': dummyData.dummyPatient.profession + exports.updateSuffix ,
+    'naturalidade': dummyData.dummyPatient.naturalFrom + exports.updateSuffix ,
+    'procedencia': dummyData.dummyPatient.origin + exports.updateSuffix ,
+    'indicacao': dummyData.dummyPatient.referredBy + exports.updateSuffix ,
+    'obs': dummyData.dummyPatient.obs + exports.updateSuffix
 };
 
 exports.insuranceProviderCreated = {
@@ -86,7 +86,7 @@ exports.insuranceProviderCreated = {
 
 exports.insuranceProviderUpdated = {
     'convenio': dummyData.dummyInsuranceProvider.name ,
-    'cobrado': (dummyData.dummyInsuranceProvider.amountCharged + updateIncrement)
+    'cobrado': (dummyData.dummyInsuranceProvider.amountCharged + exports.updateIncrement)
 };
 
 exports.consultationCreated = {
@@ -104,13 +104,13 @@ exports.consultationCreated = {
 exports.consultationUpdated = {
     'pac_id': dummyData.dummyConsultation.id ,
     'login': dummyData.dummyConsultation.login ,
-    'anamnese': dummyData.dummyConsultation.anamnesis + updateSuffix ,
-    'exame_fisico': dummyData.dummyConsultation.physical + updateSuffix ,
-    'hip_diag': dummyData.dummyConsultation.hypothesis + updateSuffix ,
-    'conduta': dummyData.dummyConsultation.conduct + updateSuffix ,
-    'exames': dummyData.dummyConsultation.examination + updateSuffix ,
-    'evolucao': dummyData.dummyConsultation.evolution + updateSuffix ,
-    'cirurgias': dummyData.dummyConsultation.surgicalProcedures + updateSuffix
+    'anamnese': dummyData.dummyConsultation.anamnesis + exports.updateSuffix ,
+    'exame_fisico': dummyData.dummyConsultation.physical + exports.updateSuffix ,
+    'hip_diag': dummyData.dummyConsultation.hypothesis + exports.updateSuffix ,
+    'conduta': dummyData.dummyConsultation.conduct + exports.updateSuffix ,
+    'exames': dummyData.dummyConsultation.examination + exports.updateSuffix ,
+    'evolucao': dummyData.dummyConsultation.evolution + exports.updateSuffix ,
+    'cirurgias': dummyData.dummyConsultation.surgicalProcedures + exports.updateSuffix
 };
 
 exports.paymentCreated = {
@@ -126,7 +126,7 @@ exports.paymentUpdated = {
     'pac_id': dummyData.dummyPayment.id ,
     'login': dummyData.dummyPayment.login ,
     'data': dummyData.dummyPayment.date ,
-    'convenio': dummyData.dummyPayment.insuranceProviderName + updateSuffix ,
-    'cobrado': (dummyData.dummyPayment.amountCharged + updateIncrement) ,
-    'recibo': (dummyData.dummyPayment.receipt + updateIncrement)
+    'convenio': dummyData.dummyPayment.insuranceProviderName + exports.updateSuffix ,
+    'cobrado': (dummyData.dummyPayment.amountCharged + exports.updateIncrement) ,
+    'recibo': (dummyData.dummyPayment.receipt + exports.updateIncrement)
 };

@@ -33,7 +33,7 @@ const Doctor = Conn.define('doctor', {
     },
     register: {
         type: Sequelize.DataTypes.INTEGER,
-        field: 'login',
+        field: 'crm',
     },
     address: {
         type: Sequelize.DataTypes.STRING,
