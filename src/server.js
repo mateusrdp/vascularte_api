@@ -1,24 +1,14 @@
-import Express from 'express';
-import GraphHTTP from 'express-graphql';
-import cors from 'cors';
-import Schema from './schema';
+import { GraphQLServer } from 'graphql-yoga';
 
-// Config
-const APP_PORT= 4000
+const Query = require('./resolvers/query');
+const Mutation = require('./resolvers/mutation');
+// const AuthPayload = require('./resolvers/authPayload');
 
-const app = Express();
+const resolvers = { Query, Mutation };
 
-app.use('/graphql', cors(), (req, res) => {
-    GraphHTTP({
-        schema: Schema,
-        pretty: true,
-        graphiql: true,
-        context: {pgPool, req}
-    }) (req, res)
+const server = new GraphQLServer({
+    typeDefs: './src/schema.graphql',
+    resolvers
 });
 
-const server = app.listen(APP_PORT, () => {
-   console.log(`App listening on port ${APP_PORT}`);
-});
-
-module.exports = app;
+server.start(()=> console.log('Server running on http://localhost:4000')).catch((error)=>{console.log(error);});

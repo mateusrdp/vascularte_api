@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 
-const myDBConnection = new Sequelize(
+const Conn = new Sequelize(
     process.env.myDb, // NOTE: Must set the environment variable!
     process.env.myUser, // NOTE: Must set the environment variable!
     process.env.myPass, { // NOTE: Must set the environment variable!
@@ -15,7 +15,7 @@ const myDBConnection = new Sequelize(
 
 // Tables / Objects
 
-const Doctor = myDBConnection.define('doctor', {
+const Doctor = Conn.define('doctor', {
     login: {
         type: Sequelize.DataTypes.STRING,
         field: 'login',
@@ -68,7 +68,7 @@ const Doctor = myDBConnection.define('doctor', {
     timestamps: false
 });
 
-const DocType = myDBConnection.define('docType', {
+const DocType = Conn.define('docType', {
     login: {
         type: Sequelize.DataTypes.STRING,
         field: 'login',
@@ -89,7 +89,7 @@ const DocType = myDBConnection.define('docType', {
     timestamps: false
 });
 
-const InsuranceProvider = myDBConnection.define('insuranceProvider', {
+const InsuranceProvider = Conn.define('insuranceProvider', {
     name: {
         type: Sequelize.DataTypes.STRING,
         field: 'convenio',
@@ -107,7 +107,7 @@ const InsuranceProvider = myDBConnection.define('insuranceProvider', {
     timestamps: false
 });
 
-const Payment = myDBConnection.define('payment', {
+const Payment = Conn.define('payment', {
     id: {
         type: Sequelize.DataTypes.INTEGER,
         field: 'pac_id',
@@ -146,7 +146,7 @@ const Payment = myDBConnection.define('payment', {
     timestamps: false
 });
 
-const Patient = myDBConnection.define('patient', {
+const Patient = Conn.define('patient', {
     id: {
         type: Sequelize.DataTypes.INTEGER,
         field: 'id',
@@ -208,7 +208,7 @@ const Patient = myDBConnection.define('patient', {
     timestamps: false
 });
 
-const Consultation = myDBConnection.define('consultation', {
+const Consultation = Conn.define('consultation', {
     id: {
         type: Sequelize.DataTypes.INTEGER,
         field: 'pac_id',
@@ -287,4 +287,5 @@ Payment.belongsTo(Patient, {foreignKey: 'id', target: 'id'});
 Payment.belongsTo(Doctor, {foreignKey: 'login', target: 'login'});
 Payment.belongsTo(InsuranceProvider, {foreignKey: 'insuranceProviderName', target:'insuranceProviderName'});
 
-export default { myDBConnection, Doctor, Patient, Consultation, DocType, InsuranceProvider, Payment };
+//Export it
+export default Conn;

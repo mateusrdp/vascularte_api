@@ -15,7 +15,7 @@ chai.use(chaiAsPromised);
 
 import * as SQL from './rawSQL';
 //import * as rubric from './sql_table_rubric';
-import Schema from '../src/schema.js';
+import Schema from '../src_old/schema.js';
 import {tester} from 'graphql-tester';
 import * as dummyData from './dummyData';
 import * as testQueries from './CRUDtestData';
