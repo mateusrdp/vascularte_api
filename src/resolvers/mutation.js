@@ -2,13 +2,12 @@ import bcrypt from  'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { APP_SECRET, getUserLogin } from '../utils';
 import * as Sequelize from "sequelize";
-import Db from "../../src_old/db";
 
 const Op = Sequelize.Op;
 /*
     Doctor CRUD
  */
-async function addDoctor(parent, args, context, info) {
+async function addDoctor(root, args, context, info) {
     const passwd = await bcrypt.hash(args.password, 10); // TODO: What's 10?
     const user = await context.db.Doctor.create({
         login: args.login,
@@ -27,7 +26,7 @@ async function addDoctor(parent, args, context, info) {
     return { token, user };
 }
 
-async function signIn(parent, args, context, info) {
+async function signIn(root, args, context, info) {
     const user = await context.db.Doctor.findById(args.login);
     if (!user) throw new Error('No such user found')
     const valid = await bcrypt.compare(args.password, user.password);
@@ -36,16 +35,14 @@ async function signIn(parent, args, context, info) {
     return { token, user };
 }
 
-function removeDoctor(parent, args, context, info) {
+function removeDoctor(root, args, context, info) {
     const login = getUserLogin(context);
     return context.db.Doctor.findById(login).then(doctor => {
         return doctor.destroy();
-    }).catch(error => {
-        return {Error: error};
-    });
+    }).catch(error => { return {Error: error}; });
 }
 
-function updateDoctor(parent, args, context, info) {
+function updateDoctor(root, args, context, info) {
     const login = getUserLogin(context);
     return context.db.Doctor.findById(login).then(
         doctor => {
@@ -62,20 +59,17 @@ function updateDoctor(parent, args, context, info) {
                 if (args.city) doctor.city = args.city;
                 if (args.state) doctor.state = args.state;
                 if (args.specialty) doctor.special = args.specialty;
-
                 return doctor.save();
             }
         }
-    ).catch(error => {
-        return {Error: error};
-    });
+    ).catch(error => { return {Error: error}; });
 }
 
 /*
     Patient CRUD
  */
 
-function addPatient(parent, args, context, info) {
+function addPatient(root, args, context, info) {
     return context.db.Patient.create({
         name: args.name,
         dob: args.dob,
@@ -92,7 +86,7 @@ function addPatient(parent, args, context, info) {
     });
 }
 
-function updatePatient(parent, args, context, info) {
+function updatePatient(root, args, context, info) {
     return context.db.Patient.findById(args.id).then(
         patient => {
             if (patient) {
@@ -115,7 +109,7 @@ function updatePatient(parent, args, context, info) {
     ).catch(error => { return {Error: error}; });
 }
 
-function removePatient(parent, args, context, info) {
+function removePatient(root, args, context, info) {
     return context.db.Patient.findById(args.id).then(patient => {
         return patient.destroy();
     }).catch(error => { return {Error: error}; });
@@ -124,7 +118,7 @@ function removePatient(parent, args, context, info) {
 /*
     Consultation CRUD
  */
-function addConsultation(parent, args, context, info) {
+function addConsultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
     return context.db.Consultation.create({
         id: args.id,
@@ -139,7 +133,7 @@ function addConsultation(parent, args, context, info) {
     });
 }
 
-function removeConsultation(parent, args, context, info) {
+function removeConsultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
     return context.db.Consultation.findOne({
         where: {
@@ -151,7 +145,7 @@ function removeConsultation(parent, args, context, info) {
     }).catch(error => { return {Error: error}; });
 }
 
-function updateConsultation(parent, args, context, info) {
+function updateConsultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
     return context.db.Consultation.findOne({
         where: {
@@ -173,20 +167,20 @@ function updateConsultation(parent, args, context, info) {
 /*
     InsuranceProvider CRUD
  */
-function addInsuranceProvider(parent, args, context, info) {
+function addInsuranceProvider(root, args, context, info) {
     return context.db.InsuranceProvider.create({
         name: args.name,
         amountCharged: args.amountCharged
     });
 }
 
-function removeInsuranceProvider(parent, args, context, info) {
+function removeInsuranceProvider(root, args, context, info) {
     return context.db.InsuranceProvider.findOne({where:args}).then(insuranceProvider => {
         return insuranceProvider.destroy();
     }).catch(error => { return {Error: error}; });
 }
 
-function updateInsuranceProvider(parent, args, context, info) {
+function updateInsuranceProvider(root, args, context, info) {
     return context.db.InsuranceProvider.findOne({where:args}).then(
         insuranceProvider => {
             if (insuranceProvider) {
@@ -194,26 +188,25 @@ function updateInsuranceProvider(parent, args, context, info) {
                 return insuranceProvider.save();
             }
         }
-    ).catch(error => {
-        return {Error: error};
-    });
+    ).catch(error => { return {Error: error}; });
 }
 
 /*
     Payment CRUD
  */
-function addPayment(parent, args, context, info) {
+function addPayment(root, args, context, info) {
     return context.db.Payment.create({
-        login:args.login,
-        date:args.date,
-        insuranceProvider:args.insuranceProvider,
-        amountCharged:args.amountCharged,
+        id: args.id,
+        login: args.login,
+        date: args.date,
+        insuranceProviderName: args.insuranceProviderName,
+        amountCharged: args.amountCharged,
         receipt: args.receipt
     });
 }
 
-function removePayment(parent, args, context, info) {
-    return Db.models.payment.findOne({
+function removePayment(root, args, context, info) {
+    return context.db.Payment.findOne({
         where: {
             login: {[Op.eq]: args.login},
             id: {[Op.eq]: args.id},
@@ -224,7 +217,7 @@ function removePayment(parent, args, context, info) {
     }).catch(error => { return {Error: error}; });
 }
 
-function updatePayment(parent, args, context, info) {
+function updatePayment(root, args, context, info) {
     return context.db.Payment.findOne({
         where: {
             login: {[Op.eq]: args.login},
@@ -241,15 +234,13 @@ function updatePayment(parent, args, context, info) {
                 return payment.save();
             }
         }
-    ).catch(error => {
-        return {Error: error};
-    });
+    ).catch(error => { return {Error: error}; });
 }
 
 /*
     DocType CRUD
  */
-function addDocType(parent, args, context, info) {
+function addDocType(root, args, context, info) {
     const myLogin = getUserLogin(context);
     return context.db.DocType.create({
         login: myLogin,
@@ -258,7 +249,7 @@ function addDocType(parent, args, context, info) {
     });
 }
 
-function removeDocType(parent, args, context, info) {
+function removeDocType(root, args, context, info) {
     const myLogin = getUserLogin(context);
     return context.db.DocType.findOne({
         where: {
@@ -270,7 +261,7 @@ function removeDocType(parent, args, context, info) {
     }).catch(error => { return {Error: error}; });
 }
 
-function updateDocType(parent, args, context, info) {
+function updateDocType(root, args, context, info) {
     const myLogin = getUserLogin(context);
     return context.db.DocType.findOne({
         where: {

@@ -1,8 +1,5 @@
-
-
 type Doctor {
     login: String!
-#    password: String! #alright, let's hide this one. Only DB should know of it
     identityDocument: String
     register: Int
     address: String
@@ -13,9 +10,8 @@ type Doctor {
     state: String
     specialty: String
 
-    consultation: [Consultation]
-    docType: [DocType]
-    payment: [Payment]
+    docType(name: String): [DocType]
+    payment(name: String): [Payment]
 }
 
 type AuthPayload {
@@ -38,8 +34,8 @@ type Patient {
     referredBy: String
     obs: String
 
-    consultation: [Consultation]
-    payment: [Payment]
+    consultation (login: String): [Consultation]
+    payment (login: String): [Payment]
 }
 
 type InsuranceProvider {
@@ -57,6 +53,9 @@ type Consultation {
     evolution: String
     examination: String
     surgicalProcedures: String
+
+    patient: Patient!
+    doctor: Doctor
 }
 
 type DocType {
@@ -72,16 +71,18 @@ type Payment {
     insuranceProviderName: String
     amountCharged: Float!
     receipt: Float!
-}
 
-#schema {
-#    query: Query
-#    mutation: Mutation
-#}
+    patient: Patient!
+    doctor: Doctor!
+}
 
 type Query {
     doctor: Doctor
-    patient(name: String!): Patient
+    patient(name: String!): [Patient]
+    consultation(name: String!): [Consultation]
+    payment(name: String!, login: String!, date: String): [Payment]
+    insuranceProvider(name: String): [InsuranceProvider]
+    docType(name: String):[DocType]
 }
 
 type Mutation {
@@ -182,7 +183,7 @@ type Mutation {
         id: Int!
         login: String!
         date: String!
-        insuranceProviderName: String
+        insuranceProviderName: String!
         amountCharged: Float!
         receipt: Float!
     ): Payment
