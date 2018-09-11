@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 
 const myDBConnection = new Sequelize(
+
     process.env.myDb, // NOTE: Must set the environment variable!
     process.env.myUser, // NOTE: Must set the environment variable!
     process.env.myPass, { // NOTE: Must set the environment variable!
