@@ -1,8 +1,6 @@
 import mysql from 'promise-mysql';
 import dummyData from './dummyData';
 
-const rawPrefix = 'raw';
-
 /**
  * Database initial state setup
  */
@@ -126,7 +124,7 @@ exports.addDummyDoctorDirectly = function() {
             dummyData.dummyDoctor.register +","  +
             "'" + dummyData.dummyDoctor.address +"',"  +
             "'" + dummyData.dummyDoctor.gender +"',"  +
-            "'" + rawPrefix +dummyData.dummyDoctor.name +"',"  +
+            "'" + dummyData.dummyDoctor.name +"',"  +
             "'" + dummyData.dummyDoctor.phone +"',"  +
             "'" + dummyData.dummyDoctor.city +"',"  +
             "'" + dummyData.dummyDoctor.state +"',"  +
@@ -146,7 +144,7 @@ exports.addDummyDocTypeDirectly = function() {
             'VALUES (' +
             "'" + dummyData.dummyDocType.login + "'," +
             "'" + dummyData.dummyDocType.name + "'," +
-            "'" + rawPrefix + dummyData.dummyDocType.content + "'" +
+            "'" +  dummyData.dummyDocType.content + "'" +
             ')',
         );
         connection.end();
@@ -160,7 +158,7 @@ exports.addDummyPatientDirectly = function() {
             'INSERT INTO DADOS_PACIENTE' +
             ' ( nome, nascimento, sexo, cor, estado_civil, tel, end, profissao, naturalidade, procedencia, indicacao, obs ) ' +
             'VALUES (' +
-            "'" + rawPrefix + dummyData.dummyPatient.name +"',"  +
+            "'" +  dummyData.dummyPatient.name +"',"  +
             "'" + dummyData.dummyPatient.dob +"',"  +
             "'" + dummyData.dummyPatient.gender +"',"  +
             "'" + dummyData.dummyPatient.ethnicity +"',"  +
@@ -203,7 +201,7 @@ exports.addDummyConsultationDirectly = function() {
             'VALUES (' +
             dummyData.dummyConsultation.id +','+
             "'" + dummyData.dummyConsultation.login + "'," +
-            "'" + rawPrefix + dummyData.dummyConsultation.anamnesis + "'," +
+            "'" +  dummyData.dummyConsultation.anamnesis + "'," +
             "'" + dummyData.dummyConsultation.physical + "'," +
             "'" + dummyData.dummyConsultation.hypothesis + "'," +
             "'" + dummyData.dummyConsultation.conduct + "'," +
@@ -237,9 +235,6 @@ exports.addDummyPaymentDirectly = function() {
 
 }
 
-/**
- * TODO: Test return checks
- */
 exports.getRows = function(table, callback) {
     return connect().then(function(connection){
         const result = connection.query("SELECT * FROM " + table);

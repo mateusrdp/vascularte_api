@@ -5,8 +5,6 @@
  * ASSUMPTIONS
  *  - MUST HAVE A MYSQL SERVER AVAILABLE AND AN USER WITH AT LEAST CREATE/DROP DATABASE PRIVILEGES
  * FOR THESE TESTS TO RUN
- *
- * TODO: this needs to take the async nature of DB access into consideration! Either use direct callbacks or promises!
  */
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -14,51 +12,64 @@ chai.should();
 chai.use(chaiAsPromised);
 
 import * as SQL from './rawSQL';
-//import * as rubric from './sql_table_rubric';
-import Schema from '../src_old/schema.js';
-import {tester} from 'graphql-tester';
+import { tester } from 'graphql-tester';
 import * as dummyData from './dummyData';
 import * as testQueries from './CRUDtestData';
 
 /**
  * ACTUAL TESTS START HERE
- * TODO: Hook actual GraphQL operations here
- * TODO: Write functions to compare MySQL table final states for each test
+ * TODO: test Authentication
+ * TODO: test Authorization
  */
-
+let myTester = tester({
+    url: process.env.myServer,
+    authorization: `Bearer ${testQueries.token}`,
+});
+let result = {};
 describe("DB CRUD Functionality", ()=> {
-    let myTester = tester({
-        url: process.env.myServer
-    });
     beforeEach(SQL.resetDB);
+    // Show something useful to help me debug, which f*cking mocha/chai don't when dealing with GraphQL
+    afterEach(async ()=>{
+        const r = await result;
+        // console.log(r.raw);
+         if (r.errors) {
+            console.log("ERROR:");
+            console.log(r.errors);
+         }
+    });
     describe("Doctor CRUD Functionality", ()=> {
         it("Doctor can be (C)reated", ()=>{
-            return myTester(testQueries.dummyDoctorCreateQuery).should.eventually
+            const result = myTester(testQueries.dummyDoctorCreateQuery);
+            return result.should.eventually
                 .have.property('data').have.property('addDoctor')
-                .become(dummyData.dummyDoctor);
+                .have.property('token');
         });
         describe("When a Doctor exists", ()=>{
             beforeEach(SQL.addDummyDoctorDirectly);
             it("Document Type can be (C)reated", ()=>{
-                return myTester(testQueries.dummyDocTypeCreateQuery).should.eventually
+                result = myTester(testQueries.dummyDocTypeCreateQuery);
+                return result.should.eventually
                     .have.property('data').have.property('addDocType')
                     .become(dummyData.dummyDocType);
             });
             describe("When Document Type exists", ()=>{ // We wanna do that before deleting the dr
-                //beforeEach(SQL.addDummyDocTypeDirectly);
+                beforeEach(SQL.addDummyDocTypeDirectly);
                 it("Document Type can be (R)ead", ()=>{
-                    return myTester(testQueries.dummyDocTypeReadQuery).should.eventually
+                    result = myTester(testQueries.dummyDocTypeReadQuery);
+                    return result.should.eventually
                         .have.property('data').have.property('docType')
-                        .become(dummyData.dummyDocType);
+                        .deep.include(dummyData.dummyDocType);
                 });
                 it("Document Type can be (U)pdated", ()=>{
-                    return myTester(testQueries.dummyDocTypeUpdateQuery).should.eventually
+                    result = myTester(testQueries.dummyDocTypeUpdateQuery);
+                    return result.should.eventually
                         .have.property('data').have.property('updateDocType')
-                        .become(dummyData.dummyDocType);
+                        .have.property('content').not.equal(dummyData.dummyDocType.content);
                 });
                 it( "Document Type can be (D)eleted", ()=>{
-                    return myTester(testQueries.dummyDocTypeDeleteQuery).should.eventually
-                        .have.property('data').have.property('deleteDocType')
+                    result = myTester(testQueries.dummyDocTypeDeleteQuery);
+                    return result.should.eventually
+                        .have.property('data').have.property('removeDocType')
                         .become(dummyData.dummyDocType);
                 });
             });
@@ -67,11 +78,12 @@ describe("DB CRUD Functionality", ()=> {
             //     const result = await SQL.getRows("MEDICO");
             //     chai.expect(result[0]).to.deep.equal(rubric.doctorCreated);
             // });
-            it("Doctor can be (R)ead", ()=>{});
-            it("Doctor can be (U)pdated", ()=>{});
-            it("Doctor can be (D)eleted", ()=>{});
+            //it("Doctor can be (R)ead", ()=>{});
+            //it("Doctor can be (U)pdated", ()=>{});
+            //it("Doctor can be (D)eleted", ()=>{});
         });
     });
+    /*
     describe("Patient CRUD Functionality", ()=>{
         let result = myTester(testQueries.dummyPatientCreateQuery);
         //console.log("Query:\n"+testQueries.dummyPatientCreateQuery+"\n");
@@ -87,7 +99,7 @@ describe("DB CRUD Functionality", ()=> {
             it("Patient can be (D)eleted", ()=>{});
         });
     });
-
+    */
     /*
     describe("InsuranceProvider CRUD Functionality", ()=>{
         it("InsuranceProvider can be (C)reated", ()=>{});

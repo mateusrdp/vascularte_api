@@ -1,6 +1,8 @@
 import * as data from './dummyData';
 import {updateSuffix, updateIncrement} from './sql_table_rubric';
-//TODO investigate: can I add a mutation to an (inner) query (e.g: doctor.addPayment()) or can it only be separate (addPayment()) ?
+
+//Token for the dummyDoctor login/passwd below and app_secret "MySecret"
+exports.token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtYXRldXNycCIsImlhdCI6MTUzNjY2OTA2N30.EDlbnbXymwcoB9hCkx8spVuW63ekNcr7ZWHvrHvLI2s";
 
 exports.dummyDoctorCreateQuery =
     "mutation { " +
@@ -17,26 +19,13 @@ exports.dummyDoctorCreateQuery =
             "state: \"" + data.dummyDoctor.state + "\"," +
             "specialty: \"" + data.dummyDoctor.specialty + "\"" +
         ") {" +
-            "login," +
-            "password," +
-            "identityDocument," +
-            "register," +
-            "address," +
-            "gender," +
-            "name," +
-            "phone," +
-            "city," +
-            "state," +
-            "specialty," +
+            "token" +
         "}" +
     "}";
 exports.dummyDoctorReadQuery =
     "query { " +
-        "doctor(" +
-            "login: \"" + data.dummyDoctor.login + "\"," +
-        ") {" +
+        "doctor {" +
             "login," +
-            "password," +
             "identityDocument," +
             "register," +
             "address," +
@@ -287,7 +276,6 @@ exports.dummyConsultationDeleteQuery =
 exports.dummyDocTypeCreateQuery =
     "mutation {" +
         "addDocType(" +
-            "login: \"" + data.dummyDocType.login + "\", " +
             "name: \"" + data.dummyDocType.name + "\", " +
             "content: \"" + data.dummyDocType.content + "\"" +
         "){" +
@@ -296,25 +284,21 @@ exports.dummyDocTypeCreateQuery =
             "content" +
         "}" +
     "}";
-//No direct read for DocType -> has to be gotten via Doctor type, to enforce authorization
+
 exports.dummyDocTypeReadQuery =
     "query { " +
-        "doctor(" +
-            "login: \"" + data.dummyDocType.login + "\"" +
+        "docType (" +
+            "name: \"" + data.dummyDocType.name + "\"" +
         "){" +
-            "docType(" +
-            "){" +
-                "login," +
-                "name," +
-                "content" +
-            "}" +
-        "} " +
+            "login," +
+            "name," +
+            "content" +
+        "}" +
     "}";
 exports.dummyDocTypeUpdateQuery =
     "mutation {" +
         "updateDocType(" +
-            "login: \"" + data.dummyDocType.login + "\", " +
-            "name: \"" + data.dummyDocType.name + updateSuffix + "\", " +
+            "name: \"" + data.dummyDocType.name + "\", " +
             "content: \"" + data.dummyDocType.content + updateSuffix + "\"" +
         "){" +
             "login," +
@@ -325,9 +309,12 @@ exports.dummyDocTypeUpdateQuery =
 exports.dummyDocTypeDeleteQuery =
     "mutation {" +
         "removeDocType(" +
-            "login: \"" + data.dummyDocType.login + "\"," +
             "name: \"" + data.dummyDocType.name + "\"" +
-    "){} }";
+    "){" +
+        "login," +
+        "name," +
+        "content" +
+    "} }";
 
 exports.dummyPaymentCreateQuery =
     "mutation {" +

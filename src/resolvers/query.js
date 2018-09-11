@@ -65,13 +65,20 @@ async function consultation(root, args, context, info) {
 
 function docType(root, args, context, info) {
     const myLogin = getUserLogin(context);
-    if (!myLogin) return [];
-    return context.db.Payment.findAll({
-        where: {
-            login: {[Op.eq]: myLogin},
-            name: {[Op.like]: "%"+args.name+"%"},
-        }
-    });
+    if (args.name) {
+        return context.db.DocType.findAll({
+            where: {
+                login: myLogin,
+                name: {[Op.like]: "%"+args.name+"%"},
+            }
+        });
+    } else {
+        return context.db.DocType.findAll({
+            where: {
+                login: myLogin
+            }
+        });
+    }
 }
 
 async function payment(root, args, context, info) {
