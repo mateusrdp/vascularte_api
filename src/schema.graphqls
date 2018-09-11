@@ -1,0 +1,210 @@
+
+
+type Doctor {
+    login: String!
+#    password: String! #alright, let's hide this one. Only DB should know of it
+    identityDocument: String
+    register: Int
+    address: String
+    gender: String
+    name: String!
+    phone: String
+    city: String
+    state: String
+    specialty: String
+
+    consultation: [Consultation]
+    docType: [DocType]
+    payment: [Payment]
+}
+
+type AuthPayload {
+    token: String
+    user: Doctor
+}
+
+type Patient {
+    id: Int!
+    name: String!
+    dob:  String! #in the odd case two patients have the same name - unlikely they have the same birthday
+    gender: String
+    ethnicity: String
+    civilStatus: String
+    phone: String
+    address: String
+    profession: String
+    naturalFrom: String
+    origin: String
+    referredBy: String
+    obs: String
+
+    consultation: [Consultation]
+    payment: [Payment]
+}
+
+type InsuranceProvider {
+    name: String!
+    amountCharged: Float!
+}
+
+type Consultation {
+    id: Int!
+    login: String!
+    anamnesis: String
+    physical: String
+    hypothesis: String
+    conduct: String
+    evolution: String
+    examination: String
+    surgicalProcedures: String
+}
+
+type DocType {
+    login: String!
+    name: String!
+    content: String
+}
+
+type Payment {
+    id: Int!
+    login: String!
+    date: String!
+    insuranceProviderName: String
+    amountCharged: Float!
+    receipt: Float!
+}
+
+#schema {
+#    query: Query
+#    mutation: Mutation
+#}
+
+type Query {
+    doctor: Doctor
+    patient(name: String!): Patient
+}
+
+type Mutation {
+    addDoctor(
+        login: String!
+        password: String!
+        identityDocument: String
+        register: Int
+        address: String
+        gender: String
+        name: String!
+        phone: String
+        city: String
+        state: String
+        specialty: String
+    ): AuthPayload
+    removeDoctor: Doctor
+    updateDoctor(
+        password: String
+        identityDocument: String
+        register: Int
+        address: String
+        gender: String
+        name: String!
+        phone: String
+        city: String
+        state: String
+        specialty: String
+    ): Doctor
+
+    addPatient(
+        name: String!
+        dob:  String!
+        gender: String
+        ethnicity: String
+        civilStatus: String
+        phone: String
+        address: String
+        profession: String
+        naturalFrom: String
+        origin: String
+        referredBy: String
+        obs: String
+    ): Patient
+    removePatient(id: Int!): Patient
+    updatePatient(
+        id: Int!
+        name: String
+        dob:  String
+        gender: String
+        ethnicity: String
+        civilStatus: String
+        phone: String
+        address: String
+        profession: String
+        naturalFrom: String
+        origin: String
+        referredBy: String
+        obs: String
+    ): Patient
+
+    addConsultation(
+        id: Int!
+        anamnesis: String
+        physical: String
+        hypothesis: String
+        conduct: String
+        evolution: String
+        examination: String
+        surgicalProcedures: String
+    ): Consultation
+    removeConsultation(
+        id: Int!
+    ): Consultation
+    updateConsultation(
+        id: Int!
+        login: String!
+        anamnesis: String
+        physical: String
+        hypothesis: String
+        conduct: String
+        evolution: String
+        examination: String
+        surgicalProcedures: String
+    ): Consultation
+
+    addInsuranceProvider(
+        name: String!
+        amountCharged: Float!
+    ): InsuranceProvider
+    removeInsuranceProvider(name: String!): InsuranceProvider
+    updateInsuranceProvider(
+        name: String!
+        amountCharged: Float!
+    ): InsuranceProvider
+
+    addPayment(
+        id: Int!
+        login: String!
+        date: String!
+        insuranceProviderName: String
+        amountCharged: Float!
+        receipt: Float!
+    ): Payment
+    removePayment(id: Int!, login: String!, date: String!): Payment
+    updatePayment(
+        id: Int!
+        login: String!
+        date: String!
+        insuranceProviderName: String
+        amountCharged: Float
+        receipt: Float
+    ): Payment
+
+    addDocType(
+        name: String!
+        content: String
+    ): DocType
+    removeDocType(name: String!): DocType
+    updateDocType(
+        name: String!
+        content: String
+    ): DocType
+
+    signIn(login: String!, password: String!): AuthPayload
+}
