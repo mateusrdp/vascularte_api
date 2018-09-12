@@ -1,3 +1,12 @@
+/*
+    (could )TODO: maybe replace Sequelize with Prisma,
+    Just so it has better compatibility with graphql-yoga, but sequelize seems fine and doesn't require a subscription
+    Last time I tried prisma, it didn't play ball with npm and linux for some reason, and I couldn't find a  way
+    to make it work with the legacy database, while Sequelize did that perfectly.
+    Perhaps the new database could use Prisma, and keep the old one with Sequelize, and GraphQL does its magic
+    and makes the migration to the better system transparent
+ */
+
 import Sequelize from 'sequelize';
 
 const myDBConnection = new Sequelize(

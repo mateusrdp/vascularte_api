@@ -1,6 +1,5 @@
 exports.dummyDoctor = {
     login: "mateusrp",
-    password: "mateus",
     identityDocument: "10",
     register: 15,
     address: "My address",

@@ -50,7 +50,7 @@ function updateDoctor(root, args, context, info) {
                 // Stupid bug forces me to change the name everytime or else it violates nonnull on it!
                 // See updatePatient() for the cleaner solution, that doesn't work
                 if (args.password) doctor.password = args.password;
-                if (args.identifyDocument) doctor.identifyDocument = args.identifyDocument;
+                if (args.identityDocument) doctor.identityDocument = args.identityDocument;
                 if (args.register) doctor.register = args.register;
                 if (args.address) doctor.address = args.address;
                 if (args.gender) doctor.gender = args.gender;
@@ -58,7 +58,7 @@ function updateDoctor(root, args, context, info) {
                 if (args.phone) doctor.phone = args.phone;
                 if (args.city) doctor.city = args.city;
                 if (args.state) doctor.state = args.state;
-                if (args.specialty) doctor.special = args.specialty;
+                if (args.specialty) doctor.specialty = args.specialty;
                 return doctor.save();
             }
         }

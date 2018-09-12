@@ -1,6 +1,12 @@
 import mysql from 'promise-mysql';
 import dummyData from './dummyData';
 
+// Template that works in case I need it later, using mocha-chai-as-promised
+// it("Doctor can be (R)ead", async ()=>{
+//     const result = await SQL.getRows("MEDICO");
+//     chai.expect(result[0]).to.deep.equal(rubric.doctorCreated);
+// });
+
 /**
  * Database initial state setup
  */

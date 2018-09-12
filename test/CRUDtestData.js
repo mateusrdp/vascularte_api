@@ -1,14 +1,15 @@
 import * as data from './dummyData';
 import {updateSuffix, updateIncrement} from './sql_table_rubric';
 
-//Token for the dummyDoctor login/passwd below and app_secret "MySecret"
+//Token for the dummyDoctor login/passwd="mateus" below and app_secret "MySecret"
 exports.token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtYXRldXNycCIsImlhdCI6MTUzNjY2OTA2N30.EDlbnbXymwcoB9hCkx8spVuW63ekNcr7ZWHvrHvLI2s";
 
+// hardcoding the password because the dummy object should not contain it
 exports.dummyDoctorCreateQuery =
     "mutation { " +
         "addDoctor(" +
             "login: \"" + data.dummyDoctor.login + "\"," +
-            "password: \"" + data.dummyDoctor.password + "\"," +
+            "password: \"mateus\"," +
             "identityDocument: \"" + data.dummyDoctor.identityDocument + "\"," +
             "register: " + data.dummyDoctor.register + "," +
             "address: \"" + data.dummyDoctor.address + "\"," +
@@ -37,23 +38,22 @@ exports.dummyDoctorReadQuery =
             "specialty," +
         "}" +
     "}";
+// Hardcoded state and gender because they have a restricted number of chars, so I couldn't just use the suffix
 exports.dummyDoctorUpdateQuery =
     "mutation { " +
         "updateDoctor(" +
-            "login: \"" + data.dummyDoctor.login + "\"," +
-            "password: \"" + data.dummyDoctor.password + "\"," +
+            // "password: \"" + data.dummyDoctor.password + "\"," +
             "identityDocument: \"" + data.dummyDoctor.identityDocument + updateSuffix + "\"," +
             "register: " + (data.dummyDoctor.register + updateIncrement) + "," +
             "address: \"" + data.dummyDoctor.address + updateSuffix + "\"," +
-            "gender: \"" + data.dummyDoctor.gender + updateSuffix + "\"," +
+            "gender: \"Z\"," +
             "name: \"" + data.dummyDoctor.name + updateSuffix + "\"," +
             "phone: \"" + data.dummyDoctor.phone + updateSuffix + "\"," +
             "city: \"" + data.dummyDoctor.city + updateSuffix + "\"," +
-            "state: \"" + data.dummyDoctor.state + updateSuffix + "\"," +
+            "state: \"AA\"," +
             "specialty: \"" + data.dummyDoctor.specialty + updateSuffix + "\"" +
         ") {" +
             "login," +
-            "password," +
             "identityDocument," +
             "register," +
             "address," +
@@ -67,9 +67,19 @@ exports.dummyDoctorUpdateQuery =
     "}";
 exports.dummyDoctorDeleteQuery =
     "mutation { " +
-        "removeDoctor(" +
-        "login: \"" + data.dummyDoctor.login + "\"" +
-    "){} }";
+        "removeDoctor {" +
+            "login," +
+            "identityDocument," +
+            "register," +
+            "address," +
+            "gender," +
+            "name," +
+            "phone," +
+            "city," +
+            "state," +
+            "specialty" +
+        "} " +
+    "}";
 
 exports.dummyPatientCreateQuery =
     "mutation { " +
