@@ -131,7 +131,7 @@ const Payment = myDBConnection.define('payment', {
         allowNull: false
     },
     date: {
-        type: Sequelize.DataTypes.DATE,
+        type: Sequelize.DataTypes.DATEONLY,
         field: 'data',
         primaryKey: true,
         allowNull: false

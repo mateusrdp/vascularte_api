@@ -83,39 +83,45 @@ function docType(root, args, context, info) {
 
 async function payment(root, args, context, info) {
     const myLogin = getUserLogin(context);
-    const preferredLogin = myLogin ? myLogin : args.login;
     const user = await context.db.Doctor.findOne({
         where: {
             login: {
-                [Op.eq]: preferredLogin
+                [Op.eq]: myLogin
             }
         }
     });
-    if (!preferredLogin || (!user.register && !args.login)) {
-        throw new Error('Not authenticated as a doctor and no login provided. Unclassified searches must provide a login.');
-        return [];
-    }
-    if (args.id && args.date) {
+    if (!user.register) throw new Error('Not authenticated as a doctor! Payments are classified information!');
+    if (args.name && args.date) {
         return context.db.Payment.findAll({
             where: {
-                login: {[Op.eq]: preferredLogin},
-                id: {[Op.eq]: args.id},
+                login: {[Op.eq]: myLogin},
                 date: {[Op.eq]: args.date}
-            }
+            },
+            include: [{
+                model: context.db.Patient,
+                where: {
+                    name: {[Op.like]: "%"+args.name+"%"}
+                }
+            }]
         });
     }
-    if (args.id) {
+    if (args.name) {
         return context.db.Payment.findAll({
             where: {
-                login: {[Op.eq]: preferredLogin},
-                id: {[Op.eq]: args.id}
-            }
+                login: {[Op.eq]: myLogin},
+            },
+            include: [{
+                model: context.db.Patient,
+                where: {
+                    name: {[Op.like]: "%"+args.name+"%"}
+                }
+           }]
         });
     }
     if (args.date) {
         return context.db.Payment.findAll({
             where: {
-                login: {[Op.eq]: preferredLogin},
+                login: {[Op.eq]: myLogin},
                 date: {[Op.eq]: args.date}
             }
         });

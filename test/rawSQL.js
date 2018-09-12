@@ -231,7 +231,7 @@ exports.addDummyPaymentDirectly = function() {
             "'" + dummyData.dummyPayment.login + "'," +
             "'" + dummyData.dummyPayment.date + "'," +
             "'" + dummyData.dummyPayment.insuranceProviderName + "'," +
-            (dummyData.dummyPayment.amountCharged + 100) + ','+ //+100 just to make it different from using Sequelize
+            (dummyData.dummyPayment.amountCharged) + ','+
             dummyData.dummyPayment.receipt +
             ')'
         );

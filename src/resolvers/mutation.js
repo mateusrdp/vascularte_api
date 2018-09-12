@@ -195,9 +195,10 @@ function updateInsuranceProvider(root, args, context, info) {
     Payment CRUD
  */
 function addPayment(root, args, context, info) {
+    const myLogin = getUserLogin(context);
     return context.db.Payment.create({
         id: args.id,
-        login: args.login,
+        login: myLogin,
         date: args.date,
         insuranceProviderName: args.insuranceProviderName,
         amountCharged: args.amountCharged,
@@ -206,10 +207,11 @@ function addPayment(root, args, context, info) {
 }
 
 function removePayment(root, args, context, info) {
+    const myLogin = getUserLogin(context);
     return context.db.Payment.findOne({
         where: {
-            login: {[Op.eq]: args.login},
             id: {[Op.eq]: args.id},
+            login: {[Op.eq]: myLogin},
             date: {[Op.eq]: args.date}
         }
     }).then(payment => {
@@ -218,17 +220,18 @@ function removePayment(root, args, context, info) {
 }
 
 function updatePayment(root, args, context, info) {
+    const myLogin = getUserLogin(context);
     return context.db.Payment.findOne({
         where: {
-            login: {[Op.eq]: args.login},
             id: {[Op.eq]: args.id},
+            login: {[Op.eq]: myLogin},
             date: {[Op.eq]: args.date}
         }
     }).then(
         payment => {
             if (payment) {
                 if (args.date) payment.date = args.date;
-                if (args.insuranceProvider) payment.insuranceProvider = args.insuranceProvider;
+                if (args.insuranceProviderName) payment.insuranceProviderName = args.insuranceProviderName;
                 if (args.amountCharged) payment.amountCharged = args.amountCharged;
                 if (args.receipt) payment.receipt = args.receipt;
                 return payment.save();

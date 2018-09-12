@@ -228,8 +228,7 @@ exports.dummyInsuranceProviderDeleteQuery =
 exports.dummyConsultationCreateQuery =
     "mutation {" +
         "addConsultation(" +
-            "id: \"" + data.dummyConsultation.id + "\"," +
-            "login: \"" + data.dummyConsultation.login + "\"," +
+            "id: " + data.dummyConsultation.id + "," +
             "anamnesis: \"" + data.dummyConsultation.anamnesis + "\"," +
             "physical: \"" + data.dummyConsultation.physical + "\"," +
             "hypothesis: \"" + data.dummyConsultation.hypothesis + "\"," +
@@ -249,40 +248,33 @@ exports.dummyConsultationCreateQuery =
             "surgicalProcedures" +
         "}" +
     "}";
-//TODO: review this
-//No direct read for Consultation -> has to be gotten ONLY via Doctor type
 exports.dummyConsultationReadQuery =
     "query { " +
-        "doctor(" +
-            "login: \"" + data.dummyConsultation.login + "\"" +
+        "consultation (" +
+            "name: \"" + data.dummyPatient.name + "\"" +
         "){" +
-            "consultation (" +
-                "name: \"" + data.dummyPatient.name + "\"" +
-            "){" +
-                "id," +
-                "login," +
-                "anamnesis," +
-                "physical," +
-                "hypothesis," +
-                "conduct," +
-                "evolution," +
-                "examination," +
-                "surgicalProcedures" +
-            "}" +
-        "} " +
+            "id," +
+            "login," +
+            "anamnesis," +
+            "physical," +
+            "hypothesis," +
+            "conduct," +
+            "evolution," +
+            "examination," +
+            "surgicalProcedures" +
+        "}" +
     "}";
 exports.dummyConsultationUpdateQuery =
     "mutation {" +
         "updateConsultation(" +
-            "id: \"" + data.dummyConsultation.id + "\"," +
-            "login: \"" + data.dummyConsultation.login + "\"," +
-            "anamnesis: \"" + data.dummyConsultation.anamnesis + "\"," +
-            "physical: \"" + data.dummyConsultation.physical + "\"," +
-            "hypothesis: \"" + data.dummyConsultation.hypothesis + "\"," +
-            "conduct: \"" + data.dummyConsultation.conduct + "\"," +
-            "evolution: \"" + data.dummyConsultation.evolution + "\"," +
-            "examination: \"" + data.dummyConsultation.examination + "\"," +
-            "surgicalProcedures: \"" + data.dummyConsultation.surgicalProcedures + "\"" +
+            "id: " + data.dummyConsultation.id + "," +
+            "anamnesis: \"" + data.dummyConsultation.anamnesis + updateSuffix + "\"," +
+            "physical: \"" + data.dummyConsultation.physical + updateSuffix + "\"," +
+            "hypothesis: \"" + data.dummyConsultation.hypothesis + updateSuffix + "\"," +
+            "conduct: \"" + data.dummyConsultation.conduct + updateSuffix + "\"," +
+            "evolution: \"" + data.dummyConsultation.evolution + updateSuffix + "\"," +
+            "examination: \"" + data.dummyConsultation.examination + updateSuffix + "\"," +
+            "surgicalProcedures: \"" + data.dummyConsultation.surgicalProcedures + updateSuffix + "\"" +
         "){" +
             "id," +
             "login," +
@@ -298,9 +290,19 @@ exports.dummyConsultationUpdateQuery =
 exports.dummyConsultationDeleteQuery =
     "mutation { " +
         "removeConsultation(" +
-            "id: \"" + data.dummyConsultation.id + "\"" +
-            "login: \"" + data.dummyConsultation.login + "\"" +
-        "){} }";
+            "id: " + data.dummyConsultation.id + "" +
+        "){" +
+            "id," +
+            "login," +
+            "anamnesis," +
+            "physical," +
+            "hypothesis," +
+            "conduct," +
+            "evolution," +
+            "examination," +
+            "surgicalProcedures" +
+        "} " +
+    "}";
 
 exports.dummyDocTypeCreateQuery =
     "mutation {" +
@@ -349,77 +351,62 @@ exports.dummyPaymentCreateQuery =
     "mutation {" +
         "addPayment(" +
             "id: " + data.dummyPayment.id + ", " +
-            "login: \"" + data.dummyPayment.login + "\", " +
-            "date: \"" + data.dummyPayment.date + "\" " +
+            "date: \"" + data.dummyPayment.date + "\", " +
+            "insuranceProviderName: \"" + data.dummyPayment.insuranceProviderName + "\", " +
+            "amountCharged: " + data.dummyPayment.amountCharged + ", " +
+            "receipt: " + data.dummyPayment.receipt +
         "){" +
             "id," +
             "login," +
             "date," +
-            "insuranceProvider," +
-            "amountCharged" +
+            "insuranceProviderName," +
+            "amountCharged," +
+            "receipt" +
         "}" +
     "}";
-//No direct read for Payment -> has to be gotten via Patient or Doctor types, to enforce authorization
-exports.dummyPaymentPatientReadQuery =
+exports.dummyPaymentReadQuery =
     "query { " +
-        "patient(" +
-            "id: " + data.dummyPayment.id + ", " +
-            "login: \"" + data.dummyPayment.login + "\", " +
-            "date: \"" + data.dummyPayment.date + "\" " +
+        "payment(" +
+            "name: \"" + data.dummyPatient.name + "\", " +
+            "date: \"" + data.dummyPayment.date + "\"" +
         "){" +
-            "payment(" +
-                "id: " + data.dummyPayment.id + "\", " +
-                "login: \"" + data.dummyPayment.login + "\", " +
-                "date: \"" + data.dummyPayment.date + "\"" +
-            "){" +
-                "id," +
-                "login," +
-                "date," +
-                "insuranceProvider," +
-                "amountCharged" +
-            "}" +
-        "} " +
+            "id," +
+            "login," +
+            "date," +
+            "insuranceProviderName," +
+            "amountCharged," +
+            "receipt" +
+        "}" +
     "}";
-exports.dummyPaymentDoctorReadQuery =
-    "query { " +
-        "doctor(" +
-            "id: " + data.dummyPayment.id + ", " +
-            "login: \"" + data.dummyPayment.login + "\", " +
-            "date: \"" + data.dummyPayment.date + "\" " +
-        "){" +
-            "payment(" +
-                "id: " + data.dummyPayment.id + "\", " +
-                "login: \"" + data.dummyPayment.login + "\", " +
-                "date: \"" + data.dummyPayment.date + "\"" +
-            "){" +
-                 "id," +
-                "login," +
-                "date," +
-                "insuranceProvider," +
-                "amountCharged" +
-            "}" +
-        "} " +
-    "}";
+
 exports.dummyPaymentUpdateQuery =
     "mutation {" +
         "updatePayment(" +
             "id: " + data.dummyPayment.id + ", " +
-            "login: \"" + data.dummyPayment.login + "\", " +
-            "date: \"" + data.dummyPayment.date + "\" " +
-            "insuranceProvider: \"" + data.dummyPayment.insuranceProviderName + "\", " +
-            "amountCharged:" + (data.dummyPayment.amountCharged+updateIncrement) +
+            "date: \"" + data.dummyPayment.date + "\", " +
+            "insuranceProviderName: \"" + data.dummyPayment.insuranceProviderName + updateSuffix + "\", " +
+            "amountCharged:" + (data.dummyPayment.amountCharged+updateIncrement) + "," +
+            "receipt:" + (data.dummyPayment.receipt+updateIncrement) +
         "){" +
             "id," +
             "login," +
             "date," +
-            "insuranceProvider," +
-            "amountCharged" +
+            "insuranceProviderName," +
+            "amountCharged," +
+            "receipt" +
         "}" +
     "}";
-exports.dummyPyamentDeleteQuery =
+exports.dummyPaymentDeleteQuery =
     "mutation { " +
         "removePayment(" +
-            "id: \"" + data.dummyPayment.id + "\"," +
-            "login: \"" + data.dummyPayment.login + "\"," +
+            "id: " + data.dummyPayment.id + "," +
             "date: \"" + data.dummyPayment.date + "\" " +
-        "){} }";
+        "){" +
+            "id," +
+            "login," +
+            "date," +
+            "insuranceProviderName," +
+            "amountCharged," +
+            "receipt" +
+        "} " +
+    "}";

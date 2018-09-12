@@ -80,7 +80,7 @@ type Query {
     doctor: Doctor
     patient(name: String!): [Patient]
     consultation(name: String!): [Consultation]
-    payment(name: String!, login: String!, date: String): [Payment]
+    payment(name: String!, date: String): [Payment]
     insuranceProvider(name: String): [InsuranceProvider]
     docType(name: String):[DocType]
 }
@@ -159,7 +159,6 @@ type Mutation {
     ): Consultation
     updateConsultation(
         id: Int!
-        login: String!
         anamnesis: String
         physical: String
         hypothesis: String
@@ -181,16 +180,14 @@ type Mutation {
 
     addPayment(
         id: Int!
-        login: String!
         date: String!
         insuranceProviderName: String!
         amountCharged: Float!
         receipt: Float!
     ): Payment
-    removePayment(id: Int!, login: String!, date: String!): Payment
+    removePayment(id: Int!, date: String!): Payment
     updatePayment(
         id: Int!
-        login: String!
         date: String!
         insuranceProviderName: String
         amountCharged: Float

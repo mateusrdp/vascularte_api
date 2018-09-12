@@ -53,7 +53,7 @@ describe("DB CRUD Functionality", ()=> {
     // Show something useful to help me debug, which f*cking mocha/chai don't when dealing with GraphQL
     afterEach(async ()=>{
         const r = await result;
-        console.log(r.raw);
+        // console.log(r.raw);
         if (r.errors) {
             console.log("ERROR:");
             console.log(r.errors);
@@ -134,7 +134,6 @@ describe("DB CRUD Functionality", ()=> {
                     .become([dummyData.dummyPatient]);
             });
             it("Patient can be (U)pdated", ()=>{
-                console.log(testQueries.dummyPatientUpdateQuery);
                 result = myTester(testQueries.dummyPatientUpdateQuery);
                 return Promise.all(samePropertiesDifferentValues(
                     "result.should.eventually.have.property('data').have.property('updatePatient')",
@@ -143,7 +142,6 @@ describe("DB CRUD Functionality", ()=> {
                 ));
             });
             it("Patient can be (D)eleted", ()=>{
-                console.log(testQueries.dummyPatientDeleteQuery);
                 result = myTester(testQueries.dummyPatientDeleteQuery);
                 return result.should.eventually
                     .have.property('data').have.property('removePatient')
@@ -153,7 +151,6 @@ describe("DB CRUD Functionality", ()=> {
     });
     describe("InsuranceProvider CRUD Functionality", ()=>{
         it("InsuranceProvider can be (C)reated", ()=>{
-            console.log(testQueries.dummyInsuranceProviderCreateQuery);
             result = myTester(testQueries.dummyInsuranceProviderCreateQuery);
             return result.should.eventually
                 .have.property('data').have.property('addInsuranceProvider')
@@ -162,21 +159,18 @@ describe("DB CRUD Functionality", ()=> {
         describe("When an Insurance Provider exists", ()=>{
             beforeEach(SQL.addDummyInsuranceProviderDirectly);
             it("InsuranceProvider can be (R)ead", ()=>{
-                console.log(testQueries.dummyInsuranceProviderReadQuery);
                 result = myTester(testQueries.dummyInsuranceProviderReadQuery);
                 return result.should.eventually
                     .have.property('data').have.property('insuranceProvider')
                     .become([dummyData.dummyInsuranceProvider]);
             });
             it("InsuranceProvider can be (U)pdated", ()=>{
-                console.log(testQueries.dummyInsuranceProviderUpdateQuery);
                 result = myTester(testQueries.dummyInsuranceProviderUpdateQuery);
                 return result.should.eventually
                     .have.property('data').have.property('updateInsuranceProvider')
                     .have.property('amountCharged').not.equal(dummyData.dummyInsuranceProvider.amountCharged);
             });
             it("InsuranceProvider can be (D)eleted", ()=>{
-                console.log(testQueries.dummyInsuranceProviderDeleteQuery);
                 result = myTester(testQueries.dummyInsuranceProviderDeleteQuery);
                 return result.should.eventually
                     .have.property('data').have.property('removeInsuranceProvider')
@@ -184,29 +178,67 @@ describe("DB CRUD Functionality", ()=> {
             });
         });
     });
-    /*
     describe("When both Doctor and Patient exist", ()=>{
         beforeEach(SQL.addDummyDoctorDirectly);
         beforeEach(SQL.addDummyPatientDirectly);
-        it("Consultation can be (C)reated", ()=>{});
+        it("Consultation can be (C)reated", ()=>{
+            result = myTester(testQueries.dummyConsultationCreateQuery);
+            return result.should.eventually
+                .have.property('data').have.property('addConsultation')
+                .become(dummyData.dummyConsultation);
+        });
         describe("When a Consultation between a Doctor and Patient exists", ()=>{
             beforeEach(SQL.addDummyConsultationDirectly);
-            it("Consultation can be (R)ead", ()=>{});
-            it("Consultation can be (U)pdated", ()=>{});
-            it("Consultation can be (D)eleted", ()=>{});
-        });
-
-        describe("When an Insurance Provider is defined as well", ()=>{
-            it("Payment can be (C)reated", ()=>{});
-            describe("When a Payment from a Patient to a Doctor exists", ()=>{
-                beforeEach(SQL.addDummyPaymentDirectly);
-                it("Payment can be (R)ead by via the Doctor", ()=>{});
-                it("Payment can be (R)ead by via the Patient", ()=>{});
-                it("Payment can be (U)pdated", ()=>{});
-                it("Payment can be (D)eleted", ()=>{});
+            it("Consultation can be (R)ead", ()=>{
+                result = myTester(testQueries.dummyConsultationReadQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('consultation')
+                    .become([dummyData.dummyConsultation]);
+            });
+            it("Consultation can be (U)pdated", ()=>{
+                result = myTester(testQueries.dummyConsultationUpdateQuery);
+                return Promise.all(samePropertiesDifferentValues(
+                    "result.should.eventually.have.property('data').have.property('updateConsultation')",
+                    "dummyData.dummyConsultation",
+                    ['login', 'id']
+                ));
+            });
+            it("Consultation can be (D)eleted", ()=>{
+                result = myTester(testQueries.dummyConsultationDeleteQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('removeConsultation')
+                    .become(dummyData.dummyConsultation);
             });
         });
 
+        it("Payment can be (C)reated", ()=>{
+            result = myTester(testQueries.dummyPaymentCreateQuery);
+            return result.should.eventually
+                .have.property('data').have.property('addPayment')
+                .become(dummyData.dummyPayment);
+        });
+        describe("When a Payment from a Patient to a Doctor exists", ()=>{
+            beforeEach(SQL.addDummyPaymentDirectly);
+            it("Payment can be (R)ead", ()=>{
+                result = myTester(testQueries.dummyPaymentReadQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('payment')
+                    .become([dummyData.dummyPayment]);
+            });
+            it("Payment can be (U)pdated", ()=>{
+                result = myTester(testQueries.dummyPaymentUpdateQuery);
+                return Promise.all(samePropertiesDifferentValues(
+                    "result.should.eventually.have.property('data').have.property('updatePayment')",
+                    "dummyData.dummyPayment",
+                    ['id', 'login', 'date']
+                ));
+            });
+            it("Payment can be (D)eleted", ()=>{
+                result = myTester(testQueries.dummyPaymentDeleteQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('removePayment')
+                    .become(dummyData.dummyPayment);
+            });
+        });
     });
-    */
 });
