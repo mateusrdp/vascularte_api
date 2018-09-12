@@ -29,7 +29,7 @@ exports.dummyPatient = {
 
 exports.dummyInsuranceProvider = {
     name: "MateusMed",
-    amountCharged: "100.0"
+    amountCharged: 100.0
 };
 
 exports.dummyConsultation = {

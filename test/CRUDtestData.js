@@ -133,13 +133,14 @@ exports.dummyPatientReadQuery =
         "} " +
     "}";
 
+// Hardcoded gender and dob because they have a restricted number of chars, so I couldn't just use the suffix
 exports.dummyPatientUpdateQuery =
     "mutation { " +
         "updatePatient(" +
             "id: " + data.dummyPatient.id + "," +
             "name: \"" + data.dummyPatient.name + updateSuffix + "\"," +
-            "dob: \"" + data.dummyPatient.dob + updateSuffix +"\"," +
-            "gender: \"" + data.dummyPatient.gender + updateSuffix + "\"," +
+            "dob: \"1970-01-01\"," +
+            "gender: \"Z\"," +
             "ethnicity: \"" + data.dummyPatient.ethnicity + updateSuffix + "\"," +
             "civilStatus: \"" + data.dummyPatient.civilStatus + updateSuffix + "\"," +
             "phone: \"" + data.dummyPatient.phone + updateSuffix + "\"," +
@@ -168,11 +169,25 @@ exports.dummyPatientUpdateQuery =
 exports.dummyPatientDeleteQuery =
     "mutation { " +
         "removePatient(" +
-            "id: \"" + data.dummyPatient.id + "\"" +
-    "){} }";
+            "id: " + data.dummyPatient.id +
+    "){" +
+        "id," +
+        "name," +
+        "dob," +
+        "gender," +
+        "ethnicity," +
+        "civilStatus," +
+        "phone," +
+        "address," +
+        "profession," +
+        "naturalFrom," +
+        "origin," +
+        "referredBy," +
+        "obs" +
+    "} }";
 
 exports.dummyInsuranceProviderCreateQuery =
-    "mutation " +
+    "mutation {" +
         "addInsuranceProvider(" +
             "name: \"" + data.dummyInsuranceProvider.name + "\", " +
             "amountCharged: " + data.dummyInsuranceProvider.amountCharged +
@@ -193,7 +208,7 @@ exports.dummyInsuranceProviderReadQuery =
 exports.dummyInsuranceProviderUpdateQuery =
     "mutation { " +
         "updateInsuranceProvider(" +
-            "name: \"" + data.dummyInsuranceProvider.name + updateSuffix + "\", " +
+            "name: \"" + data.dummyInsuranceProvider.name + "\", " +
             "amountCharged: " + (data.dummyInsuranceProvider.amountCharged + updateIncrement) +
         "){" +
             "name," +
@@ -204,7 +219,11 @@ exports.dummyInsuranceProviderDeleteQuery =
     "mutation { " +
         "removeInsuranceProvider(" +
             "name: \"" + data.dummyInsuranceProvider.name + "\"" +
-        "){} }";
+        "){" +
+            "name," +
+            "amountCharged" +
+        "} " +
+    "}";
 
 exports.dummyConsultationCreateQuery =
     "mutation {" +

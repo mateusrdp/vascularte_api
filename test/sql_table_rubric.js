@@ -4,7 +4,7 @@
 
 import dummyData from './dummyData';
 
-exports.updateSuffix = " updated";
+exports.updateSuffix = "+";
 exports.updateIncrement = 10;
 
 exports.doctorCreated =  {

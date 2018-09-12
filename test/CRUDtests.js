@@ -118,34 +118,72 @@ describe("DB CRUD Functionality", ()=> {
             });
         });
     });
-    /*
     describe("Patient CRUD Functionality", ()=>{
-        result = myTester(testQueries.dummyPatientCreateQuery);
-        //console.log("Query:\n"+testQueries.dummyPatientCreateQuery+"\n");
         it("Patient can be (C)reated", ()=>{
+            result = myTester(testQueries.dummyPatientCreateQuery);
             return result.should.eventually
                 .have.property('data').have.property('addPatient')
                 .become(dummyData.dummyPatient);
         });
        describe("When a Patient exists", ()=>{
             beforeEach(SQL.addDummyPatientDirectly);
-            it("Patient can be (R)ead", ()=>{});
-            it("Patient can be (U)pdated", ()=>{});
-            it("Patient can be (D)eleted", ()=>{});
+            it("Patient can be (R)ead", ()=>{
+                result = myTester(testQueries.dummyPatientReadQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('patient')
+                    .become([dummyData.dummyPatient]);
+            });
+            it("Patient can be (U)pdated", ()=>{
+                console.log(testQueries.dummyPatientUpdateQuery);
+                result = myTester(testQueries.dummyPatientUpdateQuery);
+                return Promise.all(samePropertiesDifferentValues(
+                    "result.should.eventually.have.property('data').have.property('updatePatient')",
+                    "dummyData.dummyPatient",
+                    ['id']
+                ));
+            });
+            it("Patient can be (D)eleted", ()=>{
+                console.log(testQueries.dummyPatientDeleteQuery);
+                result = myTester(testQueries.dummyPatientDeleteQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('removePatient')
+                    .become(dummyData.dummyPatient);
+            });
         });
     });
-    */
-    /*
     describe("InsuranceProvider CRUD Functionality", ()=>{
-        it("InsuranceProvider can be (C)reated", ()=>{});
+        it("InsuranceProvider can be (C)reated", ()=>{
+            console.log(testQueries.dummyInsuranceProviderCreateQuery);
+            result = myTester(testQueries.dummyInsuranceProviderCreateQuery);
+            return result.should.eventually
+                .have.property('data').have.property('addInsuranceProvider')
+                .become(dummyData.dummyInsuranceProvider);
+        });
         describe("When an Insurance Provider exists", ()=>{
             beforeEach(SQL.addDummyInsuranceProviderDirectly);
-            it("InsuranceProvider can be (R)ead", ()=>{});
-            it("InsuranceProvider can be (U)pdated", ()=>{});
-            it("InsuranceProvider can be (D)eleted", ()=>{});
+            it("InsuranceProvider can be (R)ead", ()=>{
+                console.log(testQueries.dummyInsuranceProviderReadQuery);
+                result = myTester(testQueries.dummyInsuranceProviderReadQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('insuranceProvider')
+                    .become([dummyData.dummyInsuranceProvider]);
+            });
+            it("InsuranceProvider can be (U)pdated", ()=>{
+                console.log(testQueries.dummyInsuranceProviderUpdateQuery);
+                result = myTester(testQueries.dummyInsuranceProviderUpdateQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('updateInsuranceProvider')
+                    .have.property('amountCharged').not.equal(dummyData.dummyInsuranceProvider.amountCharged);
+            });
+            it("InsuranceProvider can be (D)eleted", ()=>{
+                console.log(testQueries.dummyInsuranceProviderDeleteQuery);
+                result = myTester(testQueries.dummyInsuranceProviderDeleteQuery);
+                return result.should.eventually
+                    .have.property('data').have.property('removeInsuranceProvider')
+                    .become(dummyData.dummyInsuranceProvider);
+            });
         });
     });
-    */
     /*
     describe("When both Doctor and Patient exist", ()=>{
         beforeEach(SQL.addDummyDoctorDirectly);

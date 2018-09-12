@@ -191,7 +191,7 @@ exports.addDummyInsuranceProviderDirectly = function() {
             ' ( convenio, cobrado ) ' +
             'VALUES (' +
             "'" + dummyData.dummyInsuranceProvider.name + "',"  +
-            (dummyData.dummyInsuranceProvider.amountCharged + 100) + //+100 just to make it different from using Sequelize
+            (dummyData.dummyInsuranceProvider.amountCharged) +
             ')'
         );
         connection.end();

@@ -181,14 +181,14 @@ function removeInsuranceProvider(root, args, context, info) {
 }
 
 function updateInsuranceProvider(root, args, context, info) {
-    return context.db.InsuranceProvider.findOne({where:args}).then(
-        insuranceProvider => {
-            if (insuranceProvider) {
-                if (args.amountCharged) insuranceProvider.amountCharged = args.amountCharged;
-                return insuranceProvider.save();
-            }
+    return context.db.InsuranceProvider.findOne({
+        where: {
+            name: {[Op.eq]: args.name}
         }
-    ).catch(error => { return {Error: error}; });
+    }).then(insuranceProvider => {
+        if (args.amountCharged) insuranceProvider.amountCharged = args.amountCharged;
+        return insuranceProvider.save();
+    }).catch(error => { return {Error: error}; });
 }
 
 /*

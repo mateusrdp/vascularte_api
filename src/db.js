@@ -109,7 +109,7 @@ const InsuranceProvider = myDBConnection.define('insuranceProvider', {
     amountCharged: {
         type: Sequelize.DataTypes.FLOAT,
         field: 'cobrado',
-        primaryKey: true,
+        primaryKey: false,
         allowNull: false
     },
 }, {
