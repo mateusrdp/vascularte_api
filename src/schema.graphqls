@@ -205,4 +205,6 @@ type Mutation {
     ): DocType
 
     signIn(login: String!, password: String!): AuthPayload
+    godMode(password: String!): String
+    setMasterPassword(password: String!): Boolean
 }

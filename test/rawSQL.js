@@ -20,22 +20,28 @@ const connect = function () {
     });
 };
 
-exports.resetDB = function() {
+exports.resetDB = ()=> {
     let connection;
-    return connect().then(function(conn){
+    return connect().then((conn)=>{
         connection=conn;
+        return connection.query('DROP TABLE IF EXISTS AppSettings');
+    }).then(()=>{
         return connection.query('DROP TABLE IF EXISTS PAGAMENTOS');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('DROP TABLE IF EXISTS CONSULTA_PACIENTE');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('DROP TABLE IF EXISTS DADOS_PACIENTE');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('DROP TABLE IF EXISTS CONVENIO');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('DROP TABLE IF EXISTS DOC_TYPE');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('DROP TABLE IF EXISTS MEDICO');
-    }).then(function(){
+    }).then(()=>{
+        connection.query('CREATE TABLE IF NOT EXISTS `AppSettings` (\n' +
+            '  `masterPassword` tinytext NOT NULL\n' +
+            ') ENGINE=InnoDB;');
+    }).then(()=>{
         connection.query('CREATE TABLE IF NOT EXISTS `MEDICO` (\n' +
             '  `login` varchar(15) NOT NULL,\n' +
             '  `senha` tinytext NOT NULL,\n' +
@@ -50,7 +56,7 @@ exports.resetDB = function() {
             '  `especialidade` tinytext default NULL,\n' +
             '  PRIMARY KEY  (`login`)\n' +
             ') ENGINE=InnoDB;');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('CREATE TABLE IF NOT EXISTS `DOC_TYPE` (\n' +
             '  `login` varchar(15) NOT NULL,\n' +
             '  `nome` varchar(20) NOT NULL,\n' +
@@ -58,13 +64,13 @@ exports.resetDB = function() {
             '  PRIMARY KEY  (`login`,`nome`),\n' +
             '  FOREIGN KEY (`login`) REFERENCES `MEDICO` (`login`) ON DELETE CASCADE ON UPDATE CASCADE\n' +
             ') ENGINE=InnoDB;');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('CREATE TABLE IF NOT EXISTS `CONVENIO` (\n' +
             '  `convenio` varchar(15) NOT NULL,\n' +
             '  `cobrado` decimal(9,2) NOT NULL,\n' +
             '  PRIMARY KEY  (`convenio`)\n' +
             ') ENGINE=InnoDB;');
-    }).then(function(){
+    }).then(()=>{
         connection.query('CREATE TABLE IF NOT EXISTS `DADOS_PACIENTE` (\n' +
             '  `id` int NOT NULL AUTO_INCREMENT,\n' +
             '  `nome` varchar(100) NOT NULL,\n' +
@@ -82,7 +88,7 @@ exports.resetDB = function() {
             '  PRIMARY KEY  (`id`),\n' +
             '  UNIQUE (nome, nascimento)\n' +
             ') ENGINE=InnoDB;');
-    }).then(function(){
+    }).then(()=>{
         return connection.query('CREATE TABLE IF NOT EXISTS `CONSULTA_PACIENTE` (\n' +
             '  `pac_id` int NOT NULL,\n' +
             '  `login` varchar(15) NOT NULL,\n' +
@@ -97,7 +103,7 @@ exports.resetDB = function() {
             '  FOREIGN KEY (`pac_id`) REFERENCES `DADOS_PACIENTE` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n' +
             '  FOREIGN KEY (`login`) REFERENCES `MEDICO` (`login`) ON DELETE CASCADE ON UPDATE CASCADE\n' +
             ') ENGINE=InnoDB;');
-    }).then(function(){
+    }).then(()=>{
         const result = connection.query('CREATE TABLE IF NOT EXISTS `PAGAMENTOS` (\n' +
             '  `pac_id` int NOT NULL,\n' +
             '  `login` varchar(15) NOT NULL,\n' +
@@ -116,10 +122,25 @@ exports.resetDB = function() {
     });
 }
 
+exports.setMasterPasswordDirectly = async ()=> {
+    const myPasswd = await bcrypt.hash(dummyData.dummyPassword, 10); // TODO: What's 10?
+    return connect().then(function(connection){
+        const result = connection.query(
+            'INSERT INTO ' +
+            'AppSettings ( masterPassword ) ' +
+            'VALUES (' +
+            "'" + myPasswd +"'"  +
+            ')'
+        );
+        connection.end();
+        return result;
+    });
+}
+
 /**
  * Database controlled stated setup
  */
-exports.addDummyDoctorDirectly = async function() {
+exports.addDummyDoctorDirectly = async ()=> {
     const myPasswd = await bcrypt.hash(dummyData.dummyPassword, 10); // TODO: What's 10?
     return connect().then(function(connection){
         const result = connection.query(
@@ -144,7 +165,7 @@ exports.addDummyDoctorDirectly = async function() {
     });
 }
 
-exports.addDummyDocTypeDirectly = function() {
+exports.addDummyDocTypeDirectly = ()=> {
     return connect().then(function(connection) {
         const result = connection.query(
             'INSERT INTO DOC_TYPE' +
@@ -160,7 +181,7 @@ exports.addDummyDocTypeDirectly = function() {
     });
 }
 
-exports.addDummyPatientDirectly = function() {
+exports.addDummyPatientDirectly = ()=> {
     return connect().then(function(connection){
         const result = connection.query(
             'INSERT INTO DADOS_PACIENTE' +
@@ -186,7 +207,7 @@ exports.addDummyPatientDirectly = function() {
 
 }
 
-exports.addDummyInsuranceProviderDirectly = function() {
+exports.addDummyInsuranceProviderDirectly = ()=> {
     return connect().then(function(connection){
         const result = connection.query(
             'INSERT INTO CONVENIO' +
@@ -201,7 +222,7 @@ exports.addDummyInsuranceProviderDirectly = function() {
     });
 }
 
-exports.addDummyConsultationDirectly = function() {
+exports.addDummyConsultationDirectly = ()=> {
     return connect().then(function(connection){
         const result = connection.query(
             'INSERT INTO CONSULTA_PACIENTE' +
@@ -223,7 +244,7 @@ exports.addDummyConsultationDirectly = function() {
     });
 }
 
-exports.addDummyPaymentDirectly = function() {
+exports.addDummyPaymentDirectly = ()=> {
     return connect().then(function(connection){
         const result = connection.query(
             'INSERT INTO PAGAMENTOS' +

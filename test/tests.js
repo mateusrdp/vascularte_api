@@ -14,7 +14,7 @@ chai.use(chaiThings);
 chai.use(chaiAsPromised);
 
 import * as SQL from './rawSQL';
-import { tester } from 'graphql-tester';
+import { tester } from './graphql-tester-mrdp';
 import * as dummyData from './dummyData';
 import * as testQueries from './testQueries';
 
@@ -45,7 +45,10 @@ function samePropertiesDifferentValues(basePromise, sampleObjName, exceptions) {
  */
 let myTester = tester({
     url: process.env.myServer,
-    authorization: `Bearer ${testQueries.token}`,
+    authorization: 'Bearer ' + testQueries.token,
+    customHeaders: {
+        'X-GodMode': 'Bearer ' + testQueries.godToken
+    }
 });
 let result = {};
 
@@ -62,10 +65,10 @@ afterEach(async ()=>{
     should_error=false;
 });
 
-//TODO: Change the user and token here to be for 'admin':'admin'
 //TODO: add change password feature
 //TODO: add change login feature
 beforeEach(SQL.resetDB);
+beforeEach(SQL.setMasterPasswordDirectly);
 describe("DB CRUD Functionality", ()=> {
     describe("Doctor CRUD Functionality", ()=> {
         it("Doctor can be (C)reated", ()=>{
@@ -260,67 +263,395 @@ describe("Authentication tests", ()=>{
             .have.property('token');
     });
     it("Incorrect login returns an error indicating that", ()=>{
-        should_error=true;
         result = myTester(testQueries.dummyDoctorWrongLoginSignInQuery);
+        should_error=true;
         return result.should.eventually
             .have.property('errors').and.include.an.item.with.property("message","No such user found");
     });
     it("Incorrect password returns an error indicating that", ()=>{
-        should_error=true;
         result = myTester(testQueries.dummyDoctorWrongPasswordSignInQuery);
+        should_error=true;
         return result.should.eventually
             .have.property('errors').and.include.an.item.with.property("message","Wrong password");
     });
 });
 
 // TODO: test Authorization
-// describe("Authorization tests", ()=>{
-//     describe("One needs to be Authenticated (have a valid token) to do anything " +
-//         "(assumes all other pre-conditions met)", ()=>{
-//         /*
-//             Operations with provided tokens already covered  by CRUD tests
-//          */
-//
-//         it("No token, no Create Doctors", ()=>{});
-//         it("No token, no Read Doctors", ()=>{});
-//         it("No token, no Update Doctors", ()=>{});
-//         it("No token, no Delete Doctors", ()=>{});
-//
-//         it("No token, no Create Patients", ()=>{});
-//         it("No token, no Read Patients", ()=>{});
-//         it("No token, no Update Patients", ()=>{});
-//         it("No token, no Delete Patients", ()=>{});
-//
-//         it("No token, no Create Consultations", ()=>{});
-//         it("No token, no Read Consultations", ()=>{});
-//         it("No token, no Update Consultations", ()=>{});
-//         it("No token, no Delete Consultations", ()=>{});
-//
-//         it("No token, no Create DocTypes", ()=>{});
-//         it("No token, no Read DocTypes", ()=>{});
-//         it("No token, no Update DocTypes", ()=>{});
-//         it("No token, no Delete DocTypes", ()=>{});
-//
-//         it("No token, no Create Payments", ()=>{});
-//         it("No token, no Read Payments", ()=>{});
-//         it("No token, no Update Payments", ()=>{});
-//         it("No token, no Delete Payments", ()=>{});
-//
-//         it("No token, no Create InsuranceProviders", ()=>{});
-//         it("No token, no Read InsuranceProviders", ()=>{});
-//         it("No token, no Update InsuranceProviders", ()=>{});
-//         it("No token, no Delete InsuranceProviders", ()=>{});
-//
-//     });
-//     describe("Admin can CRUD anything (doesn't mean that the client will implement it)", ()=>{
-//         /*
-//             - Can CRUD anything already covered by CRUD tests
-//             - Cannot CD admin
-//             - Can only U, to change password at the admin page; and R to be able to get in the admin page
-//          */
-//         it("Cannot Create an user called 'admin'", ()=>{});
-//         it("Cannot Delete user 'admin'", ()=>{});
-//     });
+
+describe("Authorization tests", ()=>{
+    /*
+        Operations with provided valid tokens already covered by CRUD tests
+     */
+    describe("When no token is held", ()=>{
+        before(()=>{
+            myTester = tester({
+                url: process.env.myServer,
+                // authorization: `Bearer ${testQueries.token}`, // Take this out, so we have no token
+            });
+        });
+
+        describe("Doctor CRUD Functionality", ()=> {
+            // This test doesn't fit here. One does NOT need authentication (other than GodMod) to create Doctors
+            // it("Doctor can NOT be (C)reated", ()=>{
+            //     result = myTester(testQueries.dummyDoctorCreateQuery);
+            //     should_error=true;
+            //     return result.should.eventually
+            //         .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+            // });
+            describe("When a Doctor exists", ()=>{
+                beforeEach(SQL.addDummyDoctorDirectly);
+                it("Document Type can NOT be (C)reated", ()=>{
+                    result = myTester(testQueries.dummyDocTypeCreateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                describe("When Document Type exists", ()=>{ // We wanna do that before deleting the dr
+                    beforeEach(SQL.addDummyDocTypeDirectly);
+                    it("Document Type can NOT be (R)ead", ()=>{
+                        result = myTester(testQueries.dummyDocTypeReadQuery);
+                        should_error=true;
+                        return result.should.eventually
+                            .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                    });
+                    it("Document Type can NOT be (U)pdated", ()=>{
+                        result = myTester(testQueries.dummyDocTypeUpdateQuery);
+                        should_error=true;
+                        return result.should.eventually
+                            .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                    });
+                    it( "Document Type can be (D)eleted", ()=>{
+                        result = myTester(testQueries.dummyDocTypeDeleteQuery);
+                        should_error=true;
+                        return result.should.eventually
+                            .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                    });
+                });
+
+                it("Doctor can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyDoctorReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Doctor can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyDoctorUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Doctor can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyDoctorDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+            });
+        });
+        describe("Patient CRUD Functionality", ()=>{
+            it("Patient can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyPatientCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+            });
+            describe("When a Patient exists", ()=>{
+                beforeEach(SQL.addDummyPatientDirectly);
+                it("Patient can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyPatientReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Patient can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyPatientUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Patient can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyPatientDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+            });
+        });
+        describe("InsuranceProvider CRUD Functionality", ()=>{
+            it("InsuranceProvider can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyInsuranceProviderCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+            });
+            describe("When an Insurance Provider exists", ()=>{
+                beforeEach(SQL.addDummyInsuranceProviderDirectly);
+                it("InsuranceProvider can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyInsuranceProviderReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("InsuranceProvider can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyInsuranceProviderUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("InsuranceProvider can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyInsuranceProviderDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+            });
+        });
+        describe("When both Doctor and Patient exist", ()=>{
+            beforeEach(SQL.addDummyDoctorDirectly);
+            beforeEach(SQL.addDummyPatientDirectly);
+            it("Consultation can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyConsultationCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+            });
+            describe("When a Consultation between a Doctor and Patient exists", ()=>{
+                beforeEach(SQL.addDummyConsultationDirectly);
+                it("Consultation can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyConsultationReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Consultation can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyConsultationUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Consultation can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyConsultationDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+            });
+
+            it("Payment can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyPaymentCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+            });
+            describe("When a Payment from a Patient to a Doctor exists", ()=>{
+                beforeEach(SQL.addDummyPaymentDirectly);
+                it("Payment can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyPaymentReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Payment can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyPaymentUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+                it("Payment can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyPaymentDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","Not authenticated");
+                });
+            });
+        });
+    });
+
+    describe("When a bad token is held", ()=>{
+        before(()=>{
+            myTester = tester({
+                url: process.env.myServer,
+                authorization: `Bearer ${testQueries.badtoken}`, // Corrupt this = invalid token
+            });
+        });
+
+        describe("Doctor CRUD Functionality", ()=> {
+            // This test doesn't fit here. One does NOT need authentication (other than GodMod) to create Doctors
+            // it("Doctor can NOT be (C)reated", ()=>{
+            //     result = myTester(testQueries.dummyDoctorCreateQuery);
+            //     should_error=true;
+            //     return result.should.eventually
+            //         .have.property('errors').and.include.an.item.with.property("message","invalid token");
+            // });
+            describe("When a Doctor exists", ()=>{
+                beforeEach(SQL.addDummyDoctorDirectly);
+                it("Document Type can NOT be (C)reated", ()=>{
+                    result = myTester(testQueries.dummyDocTypeCreateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                describe("When Document Type exists", ()=>{ // We wanna do that before deleting the dr
+                    beforeEach(SQL.addDummyDocTypeDirectly);
+                    it("Document Type can NOT be (R)ead", ()=>{
+                        result = myTester(testQueries.dummyDocTypeReadQuery);
+                        should_error=true;
+                        return result.should.eventually
+                            .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                    });
+                    it("Document Type can NOT be (U)pdated", ()=>{
+                        result = myTester(testQueries.dummyDocTypeUpdateQuery);
+                        should_error=true;
+                        return result.should.eventually
+                            .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                    });
+                    it( "Document Type can be (D)eleted", ()=>{
+                        result = myTester(testQueries.dummyDocTypeDeleteQuery);
+                        should_error=true;
+                        return result.should.eventually
+                            .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                    });
+                });
+
+                it("Doctor can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyDoctorReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Doctor can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyDoctorUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Doctor can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyDoctorDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+            });
+        });
+        describe("Patient CRUD Functionality", ()=>{
+            it("Patient can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyPatientCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","invalid token");
+            });
+            describe("When a Patient exists", ()=>{
+                beforeEach(SQL.addDummyPatientDirectly);
+                it("Patient can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyPatientReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Patient can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyPatientUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Patient can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyPatientDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+            });
+        });
+        describe("InsuranceProvider CRUD Functionality", ()=>{
+            it("InsuranceProvider can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyInsuranceProviderCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","invalid token");
+            });
+            describe("When an Insurance Provider exists", ()=>{
+                beforeEach(SQL.addDummyInsuranceProviderDirectly);
+                it("InsuranceProvider can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyInsuranceProviderReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("InsuranceProvider can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyInsuranceProviderUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("InsuranceProvider can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyInsuranceProviderDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+            });
+        });
+        describe("When both Doctor and Patient exist", ()=>{
+            beforeEach(SQL.addDummyDoctorDirectly);
+            beforeEach(SQL.addDummyPatientDirectly);
+            it("Consultation can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyConsultationCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","invalid token");
+            });
+            describe("When a Consultation between a Doctor and Patient exists", ()=>{
+                beforeEach(SQL.addDummyConsultationDirectly);
+                it("Consultation can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyConsultationReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Consultation can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyConsultationUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Consultation can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyConsultationDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+            });
+
+            it("Payment can NOT be (C)reated", ()=>{
+                result = myTester(testQueries.dummyPaymentCreateQuery);
+                should_error=true;
+                return result.should.eventually
+                    .have.property('errors').and.include.an.item.with.property("message","invalid token");
+            });
+            describe("When a Payment from a Patient to a Doctor exists", ()=>{
+                beforeEach(SQL.addDummyPaymentDirectly);
+                it("Payment can NOT be (R)ead", ()=>{
+                    result = myTester(testQueries.dummyPaymentReadQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Payment can NOT be (U)pdated", ()=>{
+                    result = myTester(testQueries.dummyPaymentUpdateQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+                it("Payment can NOT be (D)eleted", ()=>{
+                    result = myTester(testQueries.dummyPaymentDeleteQuery);
+                    should_error=true;
+                    return result.should.eventually
+                        .have.property('errors').and.include.an.item.with.property("message","invalid token");
+                });
+            });
+        });
+    });
+
 //     describe("Authenticated users can CRU patients", ()=>{
 //         it("Users with doctors registrations can Create Patients", ()=>{});
 //         it("Users with doctors registrations can Read Patients", ()=>{});
@@ -335,6 +666,7 @@ describe("Authentication tests", ()=>{
 //         // Admin is covered by either of those, should one enters a valid registration or not
 //         // Admin can D Patients is already by CRUD tests
 //     });
+
 //     describe("Users with doctors registration can CRUD anything linked to their login (except C doctor)", ()=>{
 //         /*
 //             - Can CRUD anything, except Doctor, linked to their login, or that doesn't need a link
@@ -355,6 +687,7 @@ describe("Authentication tests", ()=>{
 //             - Can NOT RUD another Doctor
 //          */
 //     });
+
 //     describe("Users withOUT doctors registration (user = restricted user)", ()=>{
 //         /*
 //             - Not being able to CRUD anything else is already covered by
@@ -366,4 +699,4 @@ describe("Authentication tests", ()=>{
 //         it("Can NOT delete patients", ()=>{});
 //     });
 //
-// });
+});

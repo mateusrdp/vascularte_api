@@ -25,6 +25,13 @@ const myDBConnection = new Sequelize(
 
 // Tables / Objects
 
+const AppSettings = myDBConnection.define('godMode', {
+    masterPassword: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false
+    }
+});
+
 const Doctor = myDBConnection.define('doctor', {
     login: {
         type: Sequelize.DataTypes.STRING,

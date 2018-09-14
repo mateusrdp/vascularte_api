@@ -1,8 +1,12 @@
 import * as data from './dummyData';
 import {updateSuffix, updateIncrement} from './sql_table_rubric';
 
-//Token for the dummyDoctor login/passwd="mateusrp"/"mateus" below and app_secret "MySecret"
+// Token for God Mode, password "mateus"
+exports.godToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJfX2dvZF9fIiwiaWF0IjoxNTM2OTI4NDA4fQ.tocIXmX_cm_2dyjDQyr6mvhDLA95MXG2kW-1XFjroJY";
+// Token for the dummyDoctor login/passwd="mateusrp"/"mateus" below and app_secret "MySecret"
 exports.token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtYXRldXNycCIsImlhdCI6MTUzNjY2OTA2N30.EDlbnbXymwcoB9hCkx8spVuW63ekNcr7ZWHvrHvLI2s";
+// Same as above, first letter changed so it's wrong
+exports.badtoken = "ayJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtYXRldXNycCIsImlhdCI6MTUzNjY2OTA2N30.EDlbnbXymwcoB9hCkx8spVuW63ekNcr7ZWHvrHvLI2s";
 
 // hardcoding the password because the dummy object should not contain it
 exports.dummyDoctorCreateQuery =

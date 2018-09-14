@@ -1,13 +1,52 @@
 import bcrypt from  'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { APP_SECRET, getUserLogin } from '../utils';
+import { APP_SECRET, getUserLogin, getGodMode } from '../utils';
 import * as Sequelize from "sequelize";
 
 const Op = Sequelize.Op;
+
+async function signIn(root, args, context, info) {
+    const user = await context.db.Doctor.findById(args.login);
+    if (!user) throw new Error('No such user found')
+    const valid = await bcrypt.compare(args.password, user.password);
+    if (!valid) throw new Error('Wrong password');
+    const token = jwt.sign({userId: user.login}, APP_SECRET);
+    return { token, user };
+}
+
+async function godMode(root, args, context, info) {
+    const token = await context.db.myDBConnection.query("SELECT masterPassword FROM AppSettings").spread(async (results, metadata)=>{
+        const valid = await bcrypt.compare(args.password, results[0].masterPassword);
+        if (!valid) throw new Error('Wrong master password');
+        const token = jwt.sign({ userId: "__god__"}, APP_SECRET);
+        return token;
+    });
+    return token;
+}
+
+async function setMasterPassword(root, args, context, info) {
+    const result = context.db.myDBConnection.query("SELECT masterPassword FROM AppSettings")
+        .spread( async (results, metadata)=>{
+            if (!results.length && args.password) {
+                const myPassword = await bcrypt.hash(args.password, 10); // TODO: What's 10?
+                context.db.myDBConnection.query(
+                    "INSERT INTO AppSettings(masterPassword) VALUES ('" + myPassword + "')"
+                ).spread((results, metadata)=>{return true;});
+            } else {
+                throw new Error('Master password is already set. ' +
+                    'Contact the system administrator if you wanna reset it.');
+            }
+            return true;
+        });
+    return result;
+}
+
 /*
     Doctor CRUD
  */
 async function addDoctor(root, args, context, info) {
+    const godMode = getGodMode(context);
+    // const login = getUserLogin(context);
     const passwd = await bcrypt.hash(args.password, 10); // TODO: What's 10?
     const user = await context.db.Doctor.create({
         login: args.login,
@@ -22,15 +61,6 @@ async function addDoctor(root, args, context, info) {
         state: args.state,
         specialty: args.specialty,
     });
-    const token = jwt.sign({ userId: user.login}, APP_SECRET);
-    return { token, user };
-}
-
-async function signIn(root, args, context, info) {
-    const user = await context.db.Doctor.findById(args.login);
-    if (!user) throw new Error('No such user found')
-    const valid = await bcrypt.compare(args.password, user.password);
-    if (!valid) throw new Error('Wrong password');
     const token = jwt.sign({ userId: user.login}, APP_SECRET);
     return { token, user };
 }
@@ -70,6 +100,7 @@ function updateDoctor(root, args, context, info) {
  */
 
 function addPatient(root, args, context, info) {
+    getUserLogin(context);
     return context.db.Patient.create({
         name: args.name,
         dob: args.dob,
@@ -87,6 +118,7 @@ function addPatient(root, args, context, info) {
 }
 
 function updatePatient(root, args, context, info) {
+    getUserLogin(context);
     return context.db.Patient.findById(args.id).then(
         patient => {
             if (patient) {
@@ -110,6 +142,8 @@ function updatePatient(root, args, context, info) {
 }
 
 function removePatient(root, args, context, info) {
+    getUserLogin(context);
+    getGodMode(context);
     return context.db.Patient.findById(args.id).then(patient => {
         return patient.destroy();
     }).catch(error => { return {Error: error}; });
@@ -135,6 +169,7 @@ function addConsultation(root, args, context, info) {
 
 function removeConsultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    getGodMode(context);
     return context.db.Consultation.findOne({
         where: {
             login: { [Op.eq]: myLogin },
@@ -168,6 +203,7 @@ function updateConsultation(root, args, context, info) {
     InsuranceProvider CRUD
  */
 function addInsuranceProvider(root, args, context, info) {
+    getUserLogin(context);
     return context.db.InsuranceProvider.create({
         name: args.name,
         amountCharged: args.amountCharged
@@ -175,12 +211,14 @@ function addInsuranceProvider(root, args, context, info) {
 }
 
 function removeInsuranceProvider(root, args, context, info) {
+    getUserLogin(context);
     return context.db.InsuranceProvider.findOne({where:args}).then(insuranceProvider => {
         return insuranceProvider.destroy();
     }).catch(error => { return {Error: error}; });
 }
 
 function updateInsuranceProvider(root, args, context, info) {
+    getUserLogin(context);
     return context.db.InsuranceProvider.findOne({
         where: {
             name: {[Op.eq]: args.name}
@@ -283,6 +321,8 @@ function updateDocType(root, args, context, info) {
 // EXPORTS
 module.exports = {
     signIn,
+    godMode,
+    setMasterPassword,
 
     addDoctor,
     removeDoctor,

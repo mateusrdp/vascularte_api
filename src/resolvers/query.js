@@ -24,6 +24,7 @@ function doctor(root, args, context, info) {
     registers it
   */
 function patient(root, args, context, info) {
+    getUserLogin(context);
     return context.db.Patient.findAll({
         where: {
             name: {
@@ -129,6 +130,7 @@ async function payment(root, args, context, info) {
 }
 
 function insuranceProvider(root, args, context, info) {
+    getUserLogin(context);
     return context.db.InsuranceProvider.findAll({
         where: {
             name: { [Op.like]: args.name }
