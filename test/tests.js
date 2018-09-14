@@ -7,14 +7,16 @@
  * FOR THESE TESTS TO RUN
  */
 import chai from 'chai';
+import chaiThings from 'chai-things';
 import chaiAsPromised from 'chai-as-promised';
 chai.should();
+chai.use(chaiThings);
 chai.use(chaiAsPromised);
 
 import * as SQL from './rawSQL';
 import { tester } from 'graphql-tester';
 import * as dummyData from './dummyData';
-import * as testQueries from './CRUDtestData';
+import * as testQueries from './testQueries';
 
 /**
  * Helper function to test update: extends a base promise to test that it has all child properties
@@ -46,20 +48,25 @@ let myTester = tester({
     authorization: `Bearer ${testQueries.token}`,
 });
 let result = {};
+
+// Show something useful to help me debug, which f*cking mocha/chai don't when dealing with GraphQL
+
+let should_error = false;
+afterEach(async ()=>{
+    const r = await result;
+    // console.log(r.raw);
+    if (!should_error && r.errors) {
+        console.log("ERROR:");
+        console.log(r.errors);
+    }
+    should_error=false;
+});
+
 //TODO: Change the user and token here to be for 'admin':'admin'
 //TODO: add change password feature
 //TODO: add change login feature
+beforeEach(SQL.resetDB);
 describe("DB CRUD Functionality", ()=> {
-    beforeEach(SQL.resetDB);
-    // Show something useful to help me debug, which f*cking mocha/chai don't when dealing with GraphQL
-    afterEach(async ()=>{
-        const r = await result;
-        // console.log(r.raw);
-        if (r.errors) {
-            console.log("ERROR:");
-            console.log(r.errors);
-        }
-    });
     describe("Doctor CRUD Functionality", ()=> {
         it("Doctor can be (C)reated", ()=>{
             const result = myTester(testQueries.dummyDoctorCreateQuery);
@@ -244,103 +251,119 @@ describe("DB CRUD Functionality", ()=> {
     });
 });
 
-// TODO: test Authentication
 describe("Authentication tests", ()=>{
-    it("Correct {login, password} returns a token", ()=>{});
-    it("Incorrect {login, password} returns an error", ()=>{});
+    beforeEach(SQL.addDummyDoctorDirectly);
+    it("Correct {login, password} returns a token", ()=>{
+        result = myTester(testQueries.dummyDoctorSignInQuery);
+        return result.should.eventually
+            .have.property('data').have.property('signIn')
+            .have.property('token');
+    });
+    it("Incorrect login returns an error indicating that", ()=>{
+        should_error=true;
+        result = myTester(testQueries.dummyDoctorWrongLoginSignInQuery);
+        return result.should.eventually
+            .have.property('errors').and.include.an.item.with.property("message","No such user found");
+    });
+    it("Incorrect password returns an error indicating that", ()=>{
+        should_error=true;
+        result = myTester(testQueries.dummyDoctorWrongPasswordSignInQuery);
+        return result.should.eventually
+            .have.property('errors').and.include.an.item.with.property("message","Wrong password");
+    });
 });
 
 // TODO: test Authorization
-describe("Authorization tests", ()=>{
-    describe("One needs to be Authenticated (have a valid token) to do anything " +
-        "(assumes all other pre-conditions met)", ()=>{
-        /*
-            Operations with provided tokens already covered  by CRUD tests
-         */
-
-        it("No token, no Create Doctors", ()=>{});
-        it("No token, no Read Doctors", ()=>{});
-        it("No token, no Update Doctors", ()=>{});
-        it("No token, no Delete Doctors", ()=>{});
-
-        it("No token, no Create Patients", ()=>{});
-        it("No token, no Read Patients", ()=>{});
-        it("No token, no Update Patients", ()=>{});
-        it("No token, no Delete Patients", ()=>{});
-
-        it("No token, no Create Consultations", ()=>{});
-        it("No token, no Read Consultations", ()=>{});
-        it("No token, no Update Consultations", ()=>{});
-        it("No token, no Delete Consultations", ()=>{});
-
-        it("No token, no Create DocTypes", ()=>{});
-        it("No token, no Read DocTypes", ()=>{});
-        it("No token, no Update DocTypes", ()=>{});
-        it("No token, no Delete DocTypes", ()=>{});
-
-        it("No token, no Create Payments", ()=>{});
-        it("No token, no Read Payments", ()=>{});
-        it("No token, no Update Payments", ()=>{});
-        it("No token, no Delete Payments", ()=>{});
-
-        it("No token, no Create InsuranceProviders", ()=>{});
-        it("No token, no Read InsuranceProviders", ()=>{});
-        it("No token, no Update InsuranceProviders", ()=>{});
-        it("No token, no Delete InsuranceProviders", ()=>{});
-
-    });
-    describe("Admin can CRUD anything (doesn't mean that the client will implement it)", ()=>{
-        /*
-            - Can CRUD anything already covered by CRUD tests
-            - Cannot CD admin
-            - Can only U, to change password at the admin page; and R to be able to get in the admin page
-         */
-        it("Cannot Create an user called 'admin'", ()=>{});
-        it("Cannot Delete user 'admin'", ()=>{});
-    });
-    describe("Authenticated users can CRU patients", ()=>{
-        it("Users with doctors registrations can Create Patients", ()=>{});
-        it("Users with doctors registrations can Read Patients", ()=>{});
-        it("Users with doctors registrations can Update Patients", ()=>{});
-        it("Users with doctors registrations can NOT Delete Patients", ()=>{});
-
-        it("Users withOUT doctors registrations can Create Patients", ()=>{});
-        it("Users withOUT doctors registrations can Read Patients", ()=>{});
-        it("Users withOUT doctors registrations can Update Patients", ()=>{});
-        it("Users withOUT doctors registrations can NOT Delete Patients", ()=>{});
-
-        // Admin is covered by either of those, should one enters a valid registration or not
-        // Admin can D Patients is already by CRUD tests
-    });
-    describe("Users with doctors registration can CRUD anything linked to their login (except C doctor)", ()=>{
-        /*
-            - Can CRUD anything, except Doctor, linked to their login, or that doesn't need a link
-                . Patient (own login)
-                . Consultation (own login)
-                . Payment (own login)
-                . DocType (own login)
-                . InsuranceProvider?
-            - Can NOT CRUD anything linked to another account
-                (That requires a Doctor link)
-                . Patient (other login)
-                . Consultation (other login)
-                . Payment (other login)
-                . DocType (other login)
-                . InsuranceProvider?
-            - Can NOT C Doctor
-            - Can RUD himself
-            - Can NOT RUD another Doctor
-         */
-    });
-    describe("Users withOUT doctors registration (user = restricted user)", ()=>{
-        /*
-            - Not being able to CRUD anything else is already covered by
-                "Users can NOT CRUD anything linked to another account
-         */
-        it("Can add Patients", ()=>{});
-        it("Can update Patients", ()=>{});
-        it("Can read Patients", ()=>{});
-        it("Can NOT delete patients", ()=>{});
-    });
-
-});
+// describe("Authorization tests", ()=>{
+//     describe("One needs to be Authenticated (have a valid token) to do anything " +
+//         "(assumes all other pre-conditions met)", ()=>{
+//         /*
+//             Operations with provided tokens already covered  by CRUD tests
+//          */
+//
+//         it("No token, no Create Doctors", ()=>{});
+//         it("No token, no Read Doctors", ()=>{});
+//         it("No token, no Update Doctors", ()=>{});
+//         it("No token, no Delete Doctors", ()=>{});
+//
+//         it("No token, no Create Patients", ()=>{});
+//         it("No token, no Read Patients", ()=>{});
+//         it("No token, no Update Patients", ()=>{});
+//         it("No token, no Delete Patients", ()=>{});
+//
+//         it("No token, no Create Consultations", ()=>{});
+//         it("No token, no Read Consultations", ()=>{});
+//         it("No token, no Update Consultations", ()=>{});
+//         it("No token, no Delete Consultations", ()=>{});
+//
+//         it("No token, no Create DocTypes", ()=>{});
+//         it("No token, no Read DocTypes", ()=>{});
+//         it("No token, no Update DocTypes", ()=>{});
+//         it("No token, no Delete DocTypes", ()=>{});
+//
+//         it("No token, no Create Payments", ()=>{});
+//         it("No token, no Read Payments", ()=>{});
+//         it("No token, no Update Payments", ()=>{});
+//         it("No token, no Delete Payments", ()=>{});
+//
+//         it("No token, no Create InsuranceProviders", ()=>{});
+//         it("No token, no Read InsuranceProviders", ()=>{});
+//         it("No token, no Update InsuranceProviders", ()=>{});
+//         it("No token, no Delete InsuranceProviders", ()=>{});
+//
+//     });
+//     describe("Admin can CRUD anything (doesn't mean that the client will implement it)", ()=>{
+//         /*
+//             - Can CRUD anything already covered by CRUD tests
+//             - Cannot CD admin
+//             - Can only U, to change password at the admin page; and R to be able to get in the admin page
+//          */
+//         it("Cannot Create an user called 'admin'", ()=>{});
+//         it("Cannot Delete user 'admin'", ()=>{});
+//     });
+//     describe("Authenticated users can CRU patients", ()=>{
+//         it("Users with doctors registrations can Create Patients", ()=>{});
+//         it("Users with doctors registrations can Read Patients", ()=>{});
+//         it("Users with doctors registrations can Update Patients", ()=>{});
+//         it("Users with doctors registrations can NOT Delete Patients", ()=>{});
+//
+//         it("Users withOUT doctors registrations can Create Patients", ()=>{});
+//         it("Users withOUT doctors registrations can Read Patients", ()=>{});
+//         it("Users withOUT doctors registrations can Update Patients", ()=>{});
+//         it("Users withOUT doctors registrations can NOT Delete Patients", ()=>{});
+//
+//         // Admin is covered by either of those, should one enters a valid registration or not
+//         // Admin can D Patients is already by CRUD tests
+//     });
+//     describe("Users with doctors registration can CRUD anything linked to their login (except C doctor)", ()=>{
+//         /*
+//             - Can CRUD anything, except Doctor, linked to their login, or that doesn't need a link
+//                 . Patient (own login)
+//                 . Consultation (own login)
+//                 . Payment (own login)
+//                 . DocType (own login)
+//                 . InsuranceProvider?
+//             - Can NOT CRUD anything linked to another account
+//                 (That requires a Doctor link)
+//                 . Patient (other login)
+//                 . Consultation (other login)
+//                 . Payment (other login)
+//                 . DocType (other login)
+//                 . InsuranceProvider?
+//             - Can NOT C Doctor
+//             - Can RUD himself
+//             - Can NOT RUD another Doctor
+//          */
+//     });
+//     describe("Users withOUT doctors registration (user = restricted user)", ()=>{
+//         /*
+//             - Not being able to CRUD anything else is already covered by
+//                 "Users can NOT CRUD anything linked to another account
+//          */
+//         it("Can add Patients", ()=>{});
+//         it("Can update Patients", ()=>{});
+//         it("Can read Patients", ()=>{});
+//         it("Can NOT delete patients", ()=>{});
+//     });
+//
+// });

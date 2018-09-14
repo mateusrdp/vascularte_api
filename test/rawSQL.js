@@ -1,5 +1,6 @@
 import mysql from 'promise-mysql';
 import dummyData from './dummyData';
+import bcrypt from "bcryptjs";
 
 // Template that works in case I need it later, using mocha-chai-as-promised
 // it("Doctor can be (R)ead", async ()=>{
@@ -118,14 +119,15 @@ exports.resetDB = function() {
 /**
  * Database controlled stated setup
  */
-exports.addDummyDoctorDirectly = function() {
+exports.addDummyDoctorDirectly = async function() {
+    const myPasswd = await bcrypt.hash(dummyData.dummyPassword, 10); // TODO: What's 10?
     return connect().then(function(connection){
         const result = connection.query(
             'INSERT INTO ' +
             'MEDICO ( login, senha, cpf, crm, end, sexo, nome, teldono, cidade, estado, especialidade ) ' +
             'VALUES (' +
             "'" + dummyData.dummyDoctor.login +"',"  +
-            "'" + dummyData.dummyDoctor.password +"',"  +
+            "'" + myPasswd +"',"  +
             "'" + dummyData.dummyDoctor.identityDocument +"',"  +
             dummyData.dummyDoctor.register +","  +
             "'" + dummyData.dummyDoctor.address +"',"  +

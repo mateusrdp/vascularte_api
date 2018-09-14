@@ -1,3 +1,5 @@
+exports.dummyPassword = "mateus";
+
 exports.dummyDoctor = {
     login: "mateusrp",
     identityDocument: "10",

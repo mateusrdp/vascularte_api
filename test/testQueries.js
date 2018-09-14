@@ -1,7 +1,7 @@
 import * as data from './dummyData';
 import {updateSuffix, updateIncrement} from './sql_table_rubric';
 
-//Token for the dummyDoctor login/passwd="mateus" below and app_secret "MySecret"
+//Token for the dummyDoctor login/passwd="mateusrp"/"mateus" below and app_secret "MySecret"
 exports.token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtYXRldXNycCIsImlhdCI6MTUzNjY2OTA2N30.EDlbnbXymwcoB9hCkx8spVuW63ekNcr7ZWHvrHvLI2s";
 
 // hardcoding the password because the dummy object should not contain it
@@ -9,7 +9,7 @@ exports.dummyDoctorCreateQuery =
     "mutation { " +
         "addDoctor(" +
             "login: \"" + data.dummyDoctor.login + "\"," +
-            "password: \"mateus\"," +
+            "password: \"" + data.dummyPassword + "\"," +
             "identityDocument: \"" + data.dummyDoctor.identityDocument + "\"," +
             "register: " + data.dummyDoctor.register + "," +
             "address: \"" + data.dummyDoctor.address + "\"," +
@@ -410,3 +410,21 @@ exports.dummyPaymentDeleteQuery =
             "receipt" +
         "} " +
     "}";
+
+exports.dummyDoctorSignInQuery = "mutation { " +
+    "signIn(" +
+        "login:\"" + data.dummyDoctor.login + "\", " +
+        "password:\"" + data.dummyPassword + "\"" +
+    "){ token} }";
+
+exports.dummyDoctorWrongLoginSignInQuery = "mutation { " +
+    "signIn(" +
+    "login:\"aWrongLogin\", " +
+    "password:\"" + data.dummyPassword + "\"" +
+    "){token} }";
+
+exports.dummyDoctorWrongPasswordSignInQuery = "mutation { " +
+    "signIn(" +
+    "login:\"" + data.dummyDoctor.login + "\", " +
+    "password:\"aWrongPassword\"" +
+    "){ token} }";
