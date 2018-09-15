@@ -152,8 +152,10 @@ function removePatient(root, args, context, info) {
 /*
     Consultation CRUD
  */
-function addConsultation(root, args, context, info) {
+async function addConsultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.Consultation.create({
         id: args.id,
         login: myLogin,
@@ -167,9 +169,11 @@ function addConsultation(root, args, context, info) {
     });
 }
 
-function removeConsultation(root, args, context, info) {
+async function removeConsultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
     getGodMode(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.Consultation.findOne({
         where: {
             login: { [Op.eq]: myLogin },
@@ -180,8 +184,10 @@ function removeConsultation(root, args, context, info) {
     }).catch(error => { return {Error: error}; });
 }
 
-function updateConsultation(root, args, context, info) {
+async function updateConsultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.Consultation.findOne({
         where: {
             login: {[Op.eq]: myLogin},
@@ -202,23 +208,29 @@ function updateConsultation(root, args, context, info) {
 /*
     InsuranceProvider CRUD
  */
-function addInsuranceProvider(root, args, context, info) {
-    getUserLogin(context);
+async function addInsuranceProvider(root, args, context, info) {
+    const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.InsuranceProvider.create({
         name: args.name,
         amountCharged: args.amountCharged
     });
 }
 
-function removeInsuranceProvider(root, args, context, info) {
-    getUserLogin(context);
+async function removeInsuranceProvider(root, args, context, info) {
+    const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.InsuranceProvider.findOne({where:args}).then(insuranceProvider => {
         return insuranceProvider.destroy();
     }).catch(error => { return {Error: error}; });
 }
 
-function updateInsuranceProvider(root, args, context, info) {
-    getUserLogin(context);
+async function updateInsuranceProvider(root, args, context, info) {
+    const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.InsuranceProvider.findOne({
         where: {
             name: {[Op.eq]: args.name}
@@ -232,8 +244,10 @@ function updateInsuranceProvider(root, args, context, info) {
 /*
     Payment CRUD
  */
-function addPayment(root, args, context, info) {
+async function addPayment(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.Payment.create({
         id: args.id,
         login: myLogin,
@@ -244,8 +258,10 @@ function addPayment(root, args, context, info) {
     });
 }
 
-function removePayment(root, args, context, info) {
+async function removePayment(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.Payment.findOne({
         where: {
             id: {[Op.eq]: args.id},
@@ -257,8 +273,10 @@ function removePayment(root, args, context, info) {
     }).catch(error => { return {Error: error}; });
 }
 
-function updatePayment(root, args, context, info) {
+async function updatePayment(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.Payment.findOne({
         where: {
             id: {[Op.eq]: args.id},
@@ -281,8 +299,10 @@ function updatePayment(root, args, context, info) {
 /*
     DocType CRUD
  */
-function addDocType(root, args, context, info) {
+async function addDocType(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.DocType.create({
         login: myLogin,
         name: args.name,
@@ -290,8 +310,10 @@ function addDocType(root, args, context, info) {
     });
 }
 
-function removeDocType(root, args, context, info) {
+async function removeDocType(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.DocType.findOne({
         where: {
             login: {[Op.eq]: myLogin},
@@ -302,8 +324,10 @@ function removeDocType(root, args, context, info) {
     }).catch(error => { return {Error: error}; });
 }
 
-function updateDocType(root, args, context, info) {
+async function updateDocType(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.DocType.findOne({
         where: {
             login: {[Op.eq]: myLogin},

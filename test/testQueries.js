@@ -7,7 +7,8 @@ exports.godToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJfX2dvZF9
 exports.token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtYXRldXNycCIsImlhdCI6MTUzNjY2OTA2N30.EDlbnbXymwcoB9hCkx8spVuW63ekNcr7ZWHvrHvLI2s";
 // Same as above, first letter changed so it's wrong
 exports.badtoken = "ayJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtYXRldXNycCIsImlhdCI6MTUzNjY2OTA2N30.EDlbnbXymwcoB9hCkx8spVuW63ekNcr7ZWHvrHvLI2s";
-
+// One unclassified token
+exports.secretaryToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJib3pvbGluYSIsImlhdCI6MTUzNjk4MjU5OH0.TEp7XxkMNyU1PNSMJEuW_j3pCHjywJHaAnqNtejc8CQ";
 // hardcoding the password because the dummy object should not contain it
 exports.dummyDoctorCreateQuery =
     "mutation { " +

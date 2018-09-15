@@ -42,15 +42,8 @@ function patient(root, args, context, info) {
  */
 async function consultation(root, args, context, info) {
     const myLogin = getUserLogin(context);
-    const user = await context.db.Doctor.findOne({
-        where: {
-            login: {
-                [Op.eq]: myLogin
-            }
-        }
-    });
-    //negative register means unclassified user
-    if (!myLogin || user.register<0) return [];
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.Consultation.findAll({
         where: {
             login: {[Op.eq]: myLogin},
@@ -64,8 +57,10 @@ async function consultation(root, args, context, info) {
     });
 }
 
-function docType(root, args, context, info) {
+async function docType(root, args, context, info) {
     const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     if (args.name) {
         return context.db.DocType.findAll({
             where: {
@@ -84,14 +79,8 @@ function docType(root, args, context, info) {
 
 async function payment(root, args, context, info) {
     const myLogin = getUserLogin(context);
-    const user = await context.db.Doctor.findOne({
-        where: {
-            login: {
-                [Op.eq]: myLogin
-            }
-        }
-    });
-    if (!user.register) throw new Error('Not authenticated as a doctor! Payments are classified information!');
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     if (args.name && args.date) {
         return context.db.Payment.findAll({
             where: {
@@ -129,8 +118,10 @@ async function payment(root, args, context, info) {
     }
 }
 
-function insuranceProvider(root, args, context, info) {
-    getUserLogin(context);
+async function insuranceProvider(root, args, context, info) {
+    const myLogin = getUserLogin(context);
+    const user = await context.db.Doctor.findOne({ where: { login: { [Op.eq]: myLogin } } });
+    if (user.register<0) throw new Error('Not a registered Doctor');
     return context.db.InsuranceProvider.findAll({
         where: {
             name: { [Op.like]: args.name }

@@ -165,6 +165,31 @@ exports.addDummyDoctorDirectly = async ()=> {
     });
 }
 
+exports.addDummySecretaryDirectly = async ()=> {
+    const myPasswd = await bcrypt.hash(dummyData.dummyPassword, 10); // TODO: What's 10?
+    return connect().then(function(connection){
+        const result = connection.query(
+            'INSERT INTO ' +
+            'MEDICO ( login, senha, cpf, crm, end, sexo, nome, teldono, cidade, estado, especialidade ) ' +
+            'VALUES (' +
+            "'" + dummyData.dummySecretary.login +"',"  +
+            "'" + myPasswd +"',"  +
+            "'" + dummyData.dummySecretary.identityDocument +"',"  +
+            dummyData.dummySecretary.register +","  +
+            "'" + dummyData.dummySecretary.address +"',"  +
+            "'" + dummyData.dummySecretary.gender +"',"  +
+            "'" + dummyData.dummySecretary.name +"',"  +
+            "'" + dummyData.dummySecretary.phone +"',"  +
+            "'" + dummyData.dummySecretary.city +"',"  +
+            "'" + dummyData.dummySecretary.state +"',"  +
+            "'" + dummyData.dummySecretary.specialty  +"'"  +
+            ')'
+        );
+        connection.end();
+        return result;
+    });
+}
+
 exports.addDummyDocTypeDirectly = ()=> {
     return connect().then(function(connection) {
         const result = connection.query(

@@ -13,6 +13,19 @@ exports.dummyDoctor = {
     specialty: "Comp Sci",
 };
 
+exports.dummySecretary = {
+    login: "bozolina",
+    identityDocument: "10",
+    register: -1,
+    address: "My address",
+    gender: "F",
+    name: "Bozolina da Silva",
+    phone: "00000",
+    city: "BH",
+    state: "MG",
+    specialty: "Looking pretty",
+};
+
 exports.dummyPatient = {
     id: 1,
     name: "Stacey",
