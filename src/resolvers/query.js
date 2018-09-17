@@ -25,13 +25,15 @@ function doctor(root, args, context, info) {
   */
 function patient(root, args, context, info) {
     getUserLogin(context);
-    return context.db.Patient.findAll({
-        where: {
-            name: {
-                [Op.like]: "%"+args.name+"%"
+    if (args.name) {
+        return context.db.Patient.findAll({
+            where: {
+                name: {
+                    [Op.like]: "%" + args.name + "%"
+                }
             }
-        }
-    });
+        });
+    } else return context.db.Patient.findAll();
 }
 
 /*
