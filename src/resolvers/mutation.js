@@ -99,9 +99,9 @@ function updateDoctor(root, args, context, info) {
     Patient CRUD
  */
 
-function addPatient(root, args, context, info) {
+async function addPatient(root, args, context, info) {
     getUserLogin(context);
-    return context.db.Patient.create({
+    const patient = await context.db.Patient.create({
         name: args.name,
         dob: args.dob,
         gender: args.gender,
@@ -115,6 +115,10 @@ function addPatient(root, args, context, info) {
         referredBy: args.referredBy,
         obs: args.obs,
     });
+    context.pubsub.publish("NEW_PATIENT", {
+        newPatient: patient
+    });
+    return patient;
 }
 
 function updatePatient(root, args, context, info) {
@@ -145,6 +149,9 @@ function removePatient(root, args, context, info) {
     getUserLogin(context);
     getGodMode(context);
     return context.db.Patient.findById(args.id).then(patient => {
+        context.pubsub.publish("DEL_PATIENT", {
+            delPatient: patient
+        });
         return patient.destroy();
     }).catch(error => { return {Error: error}; });
 }

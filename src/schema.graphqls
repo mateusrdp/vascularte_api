@@ -208,3 +208,8 @@ type Mutation {
     godMode(password: String!): String
     setMasterPassword(password: String!): Boolean
 }
+
+type Subscription {
+    newPatient: Patient!
+    delPatient: Patient!
+}
