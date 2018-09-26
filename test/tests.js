@@ -988,4 +988,7 @@ describe("Authorization tests", ()=>{
         });
     });
 
+    // TODO: authenticated non-doctor can subscribe to new/del patient names
+    // TODO: authenticated doctor can subscribe to new/del patient names
+    // TODO: non-authenticated can NOT subscribe to new/del patient names
 });

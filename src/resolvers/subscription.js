@@ -1,5 +1,3 @@
-// TODO: write unit tests for subscriptions
-
 const newPatient = {
     subscribe: (root, args, context, info) => {
         return context.pubsub.asyncIterator("NEW_PATIENT");

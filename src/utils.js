@@ -13,8 +13,6 @@ function getUserLogin(context) {
 
 function getGodMode(context) {
     const godMode = context.request.get('X-GodMode');
-    console.log("=============");
-    console.log(godMode);
     if (godMode) {
         const token = godMode.replace('Bearer ', '');
         const { userId } = jwt.verify(token, APP_SECRET);
